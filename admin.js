@@ -17,18 +17,30 @@ const fotoMilikStorage = u => {
   try { const x = new URL(u); return x.origin === new URL(CONFIG.SUPABASE_URL).origin && x.pathname.includes("/storage/v1/object/public/foto/"); }
   catch { return false; }
 };
-$("brightonPrepare").onclick = () => {
-  const info = $("brightonMessage");
+$("brightonPrepare").onclick = async () => {
+  const info = $("brightonMessage"), btn = $("brightonPrepare");
   try {
     const url = validBrighton($("brightonPaste").value);
-    if (!url || new URL(url).pathname === "/") throw new Error("Tempel link satu halaman properti, bukan hanya profil agen.");
+    if (!url || !new URL(url).pathname.startsWith("/cari-properti/view/")) throw new Error("Pilih URL halaman DETAIL properti Brighton.");
+    btn.disabled = true; info.textContent = "Mengambil data Brighton...";
+    const result = await fetch("/api/brighton-import", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({url})});
+    const data = await result.json();
+    if (!result.ok) throw new Error(data.error || "Data gagal diambil.");
     resetForm();
-    $("f_brighton").value = url;
-    info.textContent = "Link siap. Isi judul, harga, lokasi, dan foto; lalu tekan Simpan.";
-    $("f_judul").focus();
-    $("formTitle").textContent = "Tambah properti Brighton";
-    $("form").scrollIntoView({ behavior: "smooth", block: "start" });
-  } catch (e) { info.textContent = e.message; }
+    $("f_brighton").value = data.url;
+    $("f_judul").value = data.judul || "";
+    $("f_lokasi").value = data.lokasi || "";
+    $("f_harga").value = data.harga || "";
+    $("f_status").value = data.status || "Dijual";
+    $("f_spek").value = data.spesifikasi || "";
+    $("f_desk").value = data.deskripsi || "";
+    fotos = data.foto || [];
+    renderFotos();
+    info.textContent = `Berhasil membaca listing. ${fotos.length} tautan foto ditemukan. Periksa semua data dan foto sebelum Simpan. Foto masih memakai server Brighton dan dapat hilang jika sumber berubah.`;
+    $("formTitle").textContent = "Preview impor Brighton — periksa dahulu";
+    $("form").scrollIntoView({behavior:"smooth",block:"start"});
+  }catch(e){info.textContent = "Gagal: " + e.message;}
+  finally{btn.disabled=false;}
 };
 
 function kompres(file, maks = 1600) {
