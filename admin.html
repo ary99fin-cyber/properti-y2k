@@ -23,9 +23,19 @@
       <h2>Properti saya</h2>
       <div id="rows"></div>
     </section>
+    <section class="block brighton-import" id="brightonImport">
+      <p class="section-kicker">INTEGRASI BRIGHTON</p>
+      <h2>Tambahkan listing pilihan Brighton</h2>
+      <p>Tempel alamat <strong>halaman satu properti</strong> Brighton, lalu lengkapi data dan foto di formulir. Tidak mengambil atau menyalin informasi Brighton secara otomatis.</p>
+      <label class="brighton-label" for="brightonPaste">Link listing Brighton</label>
+      <div class="brighton-input-row"><input id="brightonPaste" type="url" inputmode="url" placeholder="https://www.brighton.co.id/..." autocomplete="off"><button class="btn" id="brightonPrepare" type="button">Siapkan listing</button></div>
+      <p class="msg" id="brightonMessage" aria-live="polite"></p>
+    </section>
     <section class="block">
       <h2 id="formTitle">Tambah properti</h2>
       <form id="form" class="form">
+        <label>Link Brighton (opsional, satu listing)<input id="f_brighton" type="url" inputmode="url" placeholder="https://www.brighton.co.id/..."></label>
+        <p class="brighton-note">Link ini akan muncul sebagai tombol “Lihat di Brighton” pada halaman detail. Gunakan foto dan keterangan yang kamu punya hak untuk tampilkan.</p>
         <label>Judul<input id="f_judul" required placeholder="Apartemen 2 KT, Tower A Lt. 12"></label>
         <label>Lokasi<input id="f_lokasi" placeholder="Pekanbaru, Riau"></label>
         <div class="two">

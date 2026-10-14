@@ -10,6 +10,14 @@
   $("agen").textContent = "Dipasarkan oleh " + CONFIG.AGEN;
   const wa = "https://wa.me/" + CONFIG.WA + "?text=" + encodeURIComponent("Halo, saya tertarik dengan properti: " + P.judul);
   $("waBtn").href = wa; $("waBtn2").href = wa;
+  if (P.brighton_url) {
+    try {
+      const x = new URL(P.brighton_url);
+      if (x.protocol === "https:" && ["brighton.co.id", "www.brighton.co.id"].includes(x.hostname.toLowerCase())) {
+        $("brightonBtn").href = x.href; $("brightonBtn").hidden = false;
+      }
+    } catch (_) { /* Keep hidden for invalid links. */ }
+  }
   parseSpek(P.spesifikasi).forEach(s => {
     const d = document.createElement("div"); d.innerHTML = "<dt></dt><dd></dd>";
     d.children[0].textContent = s.label; d.children[1].textContent = s.nilai; $("specs").appendChild(d);

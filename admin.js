@@ -1,6 +1,35 @@
 let editId = null, fotos = [], removed = [];
 const show = login => { $("loginBox").hidden = !login; $("panel").hidden = login; };
 const namaFile = u => decodeURIComponent(new URL(u).pathname.split("/").pop());
+const validBrighton = raw => {
+  const value = String(raw || "").trim();
+  if (!value) return "";
+  let url;
+  try { url = new URL(value); } catch { throw new Error("Link Brighton tidak valid."); }
+  const host = url.hostname.toLowerCase();
+  if (url.protocol !== "https:" || !["brighton.co.id", "www.brighton.co.id"].includes(host))
+    throw new Error("Gunakan link https://www.brighton.co.id/... saja.");
+  if (url.username || url.password) throw new Error("Link tidak valid.");
+  url.hash = "";
+  return url.href;
+};
+const fotoMilikStorage = u => {
+  try { const x = new URL(u); return x.origin === new URL(CONFIG.SUPABASE_URL).origin && x.pathname.includes("/storage/v1/object/public/foto/"); }
+  catch { return false; }
+};
+$("brightonPrepare").onclick = () => {
+  const info = $("brightonMessage");
+  try {
+    const url = validBrighton($("brightonPaste").value);
+    if (!url || new URL(url).pathname === "/") throw new Error("Tempel link satu halaman properti, bukan hanya profil agen.");
+    resetForm();
+    $("f_brighton").value = url;
+    info.textContent = "Link siap. Isi judul, harga, lokasi, dan foto; lalu tekan Simpan.";
+    $("f_judul").focus();
+    $("formTitle").textContent = "Tambah properti Brighton";
+    $("form").scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (e) { info.textContent = e.message; }
+};
 
 function kompres(file, maks = 1600) {
   return new Promise((res, rej) => {
@@ -46,7 +75,7 @@ async function muatList() {
       if (!confirm("Hapus properti ini beserta fotonya?")) return;
       const { error: delError } = await sb.from("properties").delete().eq("id", p.id);
       if (delError) { alert("Gagal menghapus: " + delError.message); return; }
-      if ((p.foto || []).length) await sb.storage.from("foto").remove(p.foto.map(namaFile));
+      if ((p.foto || []).length) await sb.storage.from("foto").remove(p.foto.filter(fotoMilikStorage).map(namaFile));
       muatList();
     };
     box.appendChild(r);
@@ -71,6 +100,7 @@ function resetForm() {
 }
 function isiForm(p) {
   editId = p.id; fotos = [...(p.foto || [])]; removed = [];
+  $("f_brighton").value = p.brighton_url || "";
   $("f_judul").value = p.judul || ""; $("f_lokasi").value = p.lokasi || ""; $("f_status").value = p.status || "Dijual";
   $("f_harga").value = p.harga || ""; $("f_spek").value = p.spesifikasi || ""; $("f_desk").value = p.deskripsi || ""; $("f_fas").value = p.fasilitas || "";
   $("formTitle").textContent = "Edit properti"; $("batal").hidden = false; $("msg").textContent = "";
@@ -93,11 +123,11 @@ $("form").onsubmit = async e => {
     const row = {
       judul: $("f_judul").value.trim(), lokasi: $("f_lokasi").value.trim(), status: $("f_status").value,
       harga: Number($("f_harga").value || 0), spesifikasi: $("f_spek").value, deskripsi: $("f_desk").value,
-      fasilitas: $("f_fas").value, foto: fotos
+      fasilitas: $("f_fas").value, foto: fotos, brighton_url: validBrighton($("f_brighton").value) || null
     };
     const { error } = editId ? await sb.from("properties").update(row).eq("id", editId) : await sb.from("properties").insert(row);
     if (error) throw error;
-    if (removed.length) await sb.storage.from("foto").remove(removed.map(namaFile));
+    if (removed.length) await sb.storage.from("foto").remove(removed.filter(fotoMilikStorage).map(namaFile));
     resetForm(); $("files").value = ""; $("msg").textContent = "Tersimpan."; muatList();
   } catch (err) { $("msg").textContent = "Gagal: " + (err.message || err); }
   btn.disabled = false;

@@ -1,1 +1,11 @@
 :root{--bg:#f8f8f5;--card:#fff;--ink:#172e2d;--mute:#677a76;--line:#e0e9e3;--accent:#0b6c59;--wa:#0b6c59}body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);color:var(--ink)}.block,.info{border-radius:18px;box-shadow:0 6px 24px #143b2f0a}.btn{border-radius:10px} .gallery .main{border-radius:18px}.form input:focus,.form select:focus,.form textarea:focus{outline:2px solid #b7d7c6}.wrap{max-width:1160px} .bar{gap:16px}@media(max-width:520px){.bar h1{font-size:25px}.row{flex-wrap:wrap}.ra{width:100%;justify-content:flex-start}}
+/* Brighton listing import */
+.brighton-import {border:1px solid #cbb577; background:linear-gradient(145deg,#fffdf7,#f7f4e9)}
+.brighton-import .section-kicker {font-size:.74rem;letter-spacing:.15em;font-weight:800;color:#7e652e}
+.brighton-import p {line-height:1.65}
+.brighton-label {display:block;margin:14px 0 8px;font-weight:700}
+.brighton-input-row {display:flex;gap:10px;align-items:stretch}
+.brighton-input-row input {flex:1;min-width:0;padding:12px;border:1px solid #a8b3ae;border-radius:8px;font:inherit}
+.brighton-note {margin:-4px 0 12px;color:#6b716f;font-size:.86rem;line-height:1.5}
+.brighton-detail {display:inline-block;margin:8px 12px 8px 0;background:#f6ce24!important;color:#1a252a!important;text-decoration:none}
+@media(max-width:600px){.brighton-input-row {flex-direction:column}.brighton-input-row .btn{width:100%}}
