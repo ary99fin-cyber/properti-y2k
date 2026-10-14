@@ -1,6 +1,6 @@
 let editId = null, fotos = [], removed = [];
 const show = login => { $("loginBox").hidden = !login; $("panel").hidden = login; };
-const namaFile = u => u.split("/").pop();
+const namaFile = u => decodeURIComponent(new URL(u).pathname.split("/").pop());
 
 function kompres(file, maks = 1600) {
   return new Promise((res, rej) => {
@@ -44,7 +44,8 @@ async function muatList() {
     r.querySelector(".e").onclick = () => isiForm(p);
     r.querySelector(".d").onclick = async () => {
       if (!confirm("Hapus properti ini beserta fotonya?")) return;
-      await sb.from("properties").delete().eq("id", p.id);
+      const { error: delError } = await sb.from("properties").delete().eq("id", p.id);
+      if (delError) { alert("Gagal menghapus: " + delError.message); return; }
       if ((p.foto || []).length) await sb.storage.from("foto").remove(p.foto.map(namaFile));
       muatList();
     };

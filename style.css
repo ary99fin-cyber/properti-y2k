@@ -81,3 +81,5 @@ button.btn:disabled{opacity:.6}
 .u1{display:block;width:100%;margin-top:4px;font-size:12px;text-align:center;border:1px solid var(--line);background:none;color:var(--ink);border-radius:6px;padding:2px;cursor:pointer}
 span.u1{border-color:transparent;color:var(--accent);font-weight:700;cursor:default}
 .err{color:#c0392b;margin:0}.msg{margin:0;color:var(--mute)}
+
+[hidden]{display:none!important}
