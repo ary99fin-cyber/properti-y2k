@@ -35,33 +35,51 @@ module.exports = async (req,res) => {
     };
     const money=body.match(/Rp\s*([\d.,]+)\s*(Miliar|Milyar|M|Juta|JT)\b/i);
     const price=money?Math.round(Number(money[1].replace(/\./g,'').replace(',','.')) * (/juta|jt/i.test(money[2])?1e6:1e9)):0;
+    // Brighton property gallery photos repeat a descriptive ALT such as
+    // "Gudang Langkat — DIJUAL CEPAT BANGUNAN...". Agent avatars and footer
+    // social-media icons do not have the listing heading in their ALT.
+    // Conservative matching is intentional: never import unrelated images.
     const photos=new Set();
-    const addPhoto=raw=>{
+    const clean = str => norm(str).toLocaleLowerCase('id-ID').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+    const heading=clean(title);
+    const significant = heading.split(' ').filter(w=>w.length>=4 && !/^(dijual|disewa|cepat|tanah|luas|bangunan|untuk|harga)$/i.test(w));
+    const type=clean(textAfter($,'Tipe Properti'));
+    const place=clean(textAfter($,'Lokasi'));
+    const placeWords=place.split(' ').filter(w=>w.length>=4 && !/^(utara|selatan|barat|timur|sumatera|jawa|kota|kabupaten)$/i.test(w));
+    const matchesListing = (alt) => {
+      const x=clean(alt);
+      if(!x || /^(logo|icon|avatar|profile|instagram|facebook|youtube|tiktok|whatsapp|jhrh|brighton)/.test(x)) return false;
+      if(heading.length>=18 && (x.includes(heading.slice(0,Math.min(35,heading.length))) || heading.includes(x) && x.length>=18)) return true;
+      const hits=significant.filter(w=>x.includes(w));
+      return hits.length>=Math.min(3,significant.length) && hits.length>=2 ||
+        (type.length>=4 && x.includes(type) && placeWords.some(w=>x.includes(w)));
+    };
+    const addPhoto = raw => {
       if(!raw)return;
       try {
         const u=new URL(raw,target.href);
         if(u.protocol !=='https:' || u.hostname!=='cdn.brighton.co.id')return;
-        if(!/\.(jpg|jpeg|png|webp)(\?|$)/i.test(u.pathname+u.search) && !/image|photo|property|listing/i.test(u.pathname))return;
+        if(!/\.(jpe?g|png|webp)$/i.test(u.pathname) && !/image|photo|property|listing/i.test(u.pathname)) return;
         photos.add(u.href);
       }catch{}
     };
     $('img').each((_,e)=>{
       const alt=$(e).attr('alt')||'';
-      if (/logo|icon|agent|jhrh|profile|avatar|brighton/i.test(alt) && !/gudang|rumah|apartemen|tanah|ruko|pabrik|villa|properti/i.test(alt)) return;
-      ['src','data-src','data-original'].forEach(k=>addPhoto($(e).attr(k)));
-      const set=$(e).attr('srcset')||'';set.split(',').forEach(v=>addPhoto(v.trim().split(/\s+/)[0]));
+      if(!matchesListing(alt))return;
+      for(const k of ['src','data-src','data-original','data-lazy-src'])addPhoto($(e).attr(k));
+      // Prefer explicit image URL over srcset thumbnails.
+      if(!$(e).attr('src') && !$(e).attr('data-src')){
+        const srcset=$(e).attr('srcset')||'';
+        srcset.split(',').forEach(v=>addPhoto(v.trim().split(/\s+/)[0]));
+      }
     });
-    // Many Brighton pages embed image links in hydration scripts instead of <img>.
-    for (const m of html.matchAll(/https?:\\?\/\\?\/(?:cdn\.brighton\.co\.id)[^\s"'<>]+/g)) {
-      const uri=m[0].replace(/\\\//g,'/').replace(/\\u0026/g,'&').replace(/&amp;/g,'&');
-      addPhoto(uri);
-    }
-    addPhoto(meta('og:image'));
+    // Do not scrape arbitrary image URLs from hydration scripts or the footer.
+    // Also do not fall back to og:image: it may be an agent or site banner.
     let location=norm(textAfter($,'Lokasi')||textAfter($,'Alamat'));
     const tanah=findNum('Luas Tanah'), bangunan=findNum('Luas Bangunan');
     const details=[tanah&&'Luas tanah: '+tanah+' m²',bangunan&&'Luas bangunan: '+bangunan+' m²',...['Listrik','Sertifikat','Hadap','Kamar Tidur','Kamar Mandi','Tipe Properti'].map(l=>{const v=norm(textAfter($,l));return v && v!=='-' ?l+': '+v:''})].filter(Boolean);
     const descHeading=$('h2,h3').filter((_,e)=>/^(keterangan|deskripsi)$/i.test(norm($(e).text()))).first();
     const desc=norm(descHeading.next().text() || descHeading.parent().next().text()).slice(0,3000);
-    return res.status(200).json({url:target.href,judul:title, lokasi:location,harga:price,status:/sewa/i.test(body.slice(0,700))?'Disewa':'Dijual',spesifikasi:details.join('\n'),deskripsi:desc,foto:[...photos].slice(0,25),warnings:photos.size===0?['Belum berhasil menemukan URL foto. Periksa halaman Brighton.']:[],source:'Brighton',tested:false});
+    return res.status(200).json({url:target.href,judul:title, lokasi:location,harga:price,status:/sewa/i.test(body.slice(0,700))?'Disewa':'Dijual',spesifikasi:details.join('\n'),deskripsi:desc,foto:[...photos].slice(0,25),warnings:photos.size===0?['Foto galeri belum teridentifikasi. Tambahkan foto secara manual atau periksa struktur halaman Brighton.']:[],source:'Brighton',tested:false});
   }catch(e){return res.status(400).json({error:e.message||'Gagal membaca listing Brighton.'});}
 };
