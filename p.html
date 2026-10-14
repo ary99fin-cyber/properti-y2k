@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="id"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Detail Properti</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head><body>
+<main class="wrap" id="app">
+  <a class="link back" href="index.html">‹ Semua properti</a>
+  <section class="gallery">
+    <button class="main" id="main" aria-label="Perbesar foto"><img id="mainImg" alt=""><span class="cap" id="cap"></span><span class="count" id="count"></span></button>
+    <div class="thumbs" id="thumbs"></div>
+  </section>
+  <section class="info">
+    <p class="badge" id="status"></p><h1 id="judul">Memuat...</h1>
+    <p class="loc" id="lokasi"></p><p class="price" id="harga"></p>
+    <a class="btn" id="waBtn" target="_blank" rel="noopener">Hubungi via WhatsApp</a>
+  </section>
+  <section class="block"><h2>Spesifikasi</h2><dl class="specs" id="specs"></dl></section>
+  <section class="block"><h2>Deskripsi</h2><p id="deskripsi" style="white-space:pre-line"></p></section>
+  <section class="block"><h2>Fasilitas</h2><ul class="chips" id="fasilitas"></ul></section>
+  <p class="foot" id="agen"></p>
+</main>
+<div class="stickyBar"><a class="btn" id="waBtn2" target="_blank" rel="noopener">Hubungi via WhatsApp</a></div>
+<div class="lightbox" id="lb" hidden>
+  <button class="x" id="lbClose" aria-label="Tutup">×</button>
+  <button class="nav prev" id="lbPrev" aria-label="Sebelumnya">‹</button>
+  <img id="lbImg" alt="">
+  <button class="nav next" id="lbNext" aria-label="Berikutnya">›</button>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script><script src="common.js"></script><script src="detail.js"></script>
+</body></html>

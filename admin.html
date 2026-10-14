@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="id"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head><body>
+<main class="wrap one">
+  <section class="block narrow" id="loginBox" hidden>
+    <h1>Masuk admin</h1>
+    <form id="loginForm" class="form">
+      <label>Email<input id="email" type="email" required autocomplete="username"></label>
+      <label>Password<input id="pass" type="password" required autocomplete="current-password"></label>
+      <button class="btn" type="submit">Masuk</button>
+      <p class="err" id="loginErr"></p>
+    </form>
+  </section>
+
+  <div id="panel" hidden>
+    <div class="bar"><h1>Kelola properti</h1><button class="ghost" id="logout">Keluar</button></div>
+    <section class="block">
+      <h2>Properti saya</h2>
+      <div id="rows"></div>
+    </section>
+    <section class="block">
+      <h2 id="formTitle">Tambah properti</h2>
+      <form id="form" class="form">
+        <label>Judul<input id="f_judul" required placeholder="Apartemen 2 KT, Tower A Lt. 12"></label>
+        <label>Lokasi<input id="f_lokasi" placeholder="Pekanbaru, Riau"></label>
+        <div class="two">
+          <label>Status<select id="f_status"><option>Dijual</option><option>Disewa</option></select></label>
+          <label>Harga (angka saja)<input id="f_harga" type="number" min="0" inputmode="numeric" placeholder="850000000"></label>
+        </div>
+        <label>Spesifikasi <small>(satu baris satu data, pakai titik dua)</small>
+          <textarea id="f_spek" rows="5" placeholder="Luas bangunan: 72 m²&#10;Kamar tidur: 2&#10;Sertifikat: SHM"></textarea></label>
+        <label>Deskripsi<textarea id="f_desk" rows="5"></textarea></label>
+        <label>Fasilitas <small>(pisahkan dengan koma)</small><input id="f_fas" placeholder="AC, Kolam renang, Parkir"></label>
+        <div>
+          <p class="lbl">Foto <small>(foto pertama jadi foto utama)</small></p>
+          <div class="fotos" id="fotos"></div>
+          <input id="files" type="file" accept="image/*" multiple>
+        </div>
+        <button class="btn" id="simpan" type="submit">Simpan</button>
+        <button class="ghost" id="batal" type="button" hidden>Batal edit</button>
+        <p id="msg" class="msg"></p>
+      </form>
+    </section>
+  </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script><script src="common.js"></script><script src="admin.js"></script>
+</body></html>
