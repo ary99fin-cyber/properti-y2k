@@ -31,32 +31,47 @@ P.fasilitas.forEach(f => {
 
 function img(el, src){ el.onerror = () => { el.onerror = null; el.src = PLACEHOLDER; }; el.src = src; }
 
-P.foto.forEach((f, i) => {
-  const b = document.createElement("button");
-  b.setAttribute("aria-label", f.ket);
-  const im = document.createElement("img"); im.alt = f.ket; im.loading = "lazy"; img(im, f.file);
-  b.appendChild(im); b.onclick = () => show(i);
-  $("thumbs").appendChild(b);
-});
-
-function show(i){
-  idx = (i + P.foto.length) % P.foto.length;
-  const f = P.foto[idx];
-  img($("mainImg"), f.file); $("mainImg").alt = f.ket;
-  $("cap").textContent = f.ket;
-  $("count").textContent = (idx + 1) + " / " + P.foto.length;
-  [...$("thumbs").children].forEach((t, k) => t.classList.toggle("on", k === idx));
-  $("thumbs").children[idx].scrollIntoView({block:"nearest", inline:"center"});
-  if (!$("lb").hidden) { img($("lbImg"), f.file); }
+function cek(src){ return new Promise(r => { const t = new Image(); t.onload = () => r(true); t.onerror = () => r(false); t.src = src; }); }
+async function muatOtomatis(){
+  if (P.foto.length) return;
+  for (let i = 1; i <= 40; i++) {
+    const f = "foto/" + i + ".jpg";
+    if (!(await cek(f))) break;
+    P.foto.push({ file: f, ket: "Foto " + i });
+  }
+  if (!P.foto.length) P.foto.push({ file: "", ket: "Foto belum ditambahkan" });
 }
-$("main").onclick = () => { $("lb").hidden = false; show(idx); };
-$("lbClose").onclick = () => $("lb").hidden = true;
-$("lbPrev").onclick = () => show(idx - 1);
-$("lbNext").onclick = () => show(idx + 1);
-document.addEventListener("keydown", e => {
-  if ($("lb").hidden) return;
-  if (e.key === "Escape") $("lb").hidden = true;
-  if (e.key === "ArrowLeft") show(idx - 1);
-  if (e.key === "ArrowRight") show(idx + 1);
-});
-show(0);
+async function mulai(){
+  await muatOtomatis();
+  P.foto.forEach((f, i) => {
+    const b = document.createElement("button");
+    b.setAttribute("aria-label", f.ket);
+    const im = document.createElement("img"); im.alt = f.ket; im.loading = "lazy"; img(im, f.file);
+    b.appendChild(im); b.onclick = () => show(i);
+    $("thumbs").appendChild(b);
+  });
+
+  function show(i){
+    idx = (i + P.foto.length) % P.foto.length;
+    const f = P.foto[idx];
+    img($("mainImg"), f.file); $("mainImg").alt = f.ket;
+    $("cap").textContent = f.ket;
+    $("count").textContent = (idx + 1) + " / " + P.foto.length;
+    [...$("thumbs").children].forEach((t, k) => t.classList.toggle("on", k === idx));
+    $("thumbs").children[idx].scrollIntoView({block:"nearest", inline:"center"});
+    if (!$("lb").hidden) { img($("lbImg"), f.file); }
+  }
+  $("main").onclick = () => { $("lb").hidden = false; show(idx); };
+  $("lbClose").onclick = () => $("lb").hidden = true;
+  $("lbPrev").onclick = () => show(idx - 1);
+  $("lbNext").onclick = () => show(idx + 1);
+  document.addEventListener("keydown", e => {
+    if ($("lb").hidden) return;
+    if (e.key === "Escape") $("lb").hidden = true;
+    if (e.key === "ArrowLeft") show(idx - 1);
+    if (e.key === "ArrowRight") show(idx + 1);
+  });
+  show(0);
+
+}
+mulai();

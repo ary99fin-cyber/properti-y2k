@@ -19,11 +19,7 @@ const PROPERTI = {
   petaUrl: "",                 // opsional: tempel link Google Maps
   whatsapp: "6281234567890",   // format 62..., tanpa + dan tanpa 0 di depan
   agen: "Nama Kamu",
-  foto: [
-    { file: "foto/ruang-tamu.jpg", ket: "Ruang tamu" },
-    { file: "foto/kamar-utama.jpg", ket: "Kamar utama" },
-    { file: "foto/kamar-2.jpg", ket: "Kamar kedua" },
-    { file: "foto/kamar-mandi.jpg", ket: "Kamar mandi" },
-    { file: "foto/dapur.jpg", ket: "Dapur" }
-  ]
+  // Kosongkan = otomatis baca foto/1.jpg, foto/2.jpg, dst (maks 40).
+  // Mau caption sendiri? Isi seperti: { file: "foto/1.jpg", ket: "Ruang tamu" },
+  foto: []
 };
