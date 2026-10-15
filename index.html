@@ -1,32 +1,33 @@
 <!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#102326"><meta name="description" content="Temukan rumah, villa, tanah dan properti pilihan bersama Properti Y2K."><title>Properti Y2K | Hunian Pilihan</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="luxury.css"><link rel="stylesheet" href="chat-y2k.css"><style>
-/* Compact Brighton partner identity */
-.yenny-feature{background:#f8faf8;padding:9px 14px;border-bottom:1px solid #e4eae5}
-.yenny-feature .yenny-card{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:12px;border:1px solid #e5ebe6;background:#fff;border-radius:14px;padding:9px 12px;box-shadow:0 3px 12px rgba(12,59,48,.05)}
-.yenny-feature .yenny-photo{width:66px;height:66px;flex:0 0 66px;border-radius:50%;object-fit:cover;object-position:center 16%;background:#ffdc00;display:block}
-.yenny-feature .yenny-body{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:3px 14px}
-.yenny-feature .yenny-body h2{font:800 15px/1.3 Manrope,Arial,sans-serif;color:#163e35;margin:0}
-.yenny-feature .yenny-eyebrow{font:700 10px/1.4 Arial,sans-serif;color:#9d8145;letter-spacing:.06em;text-transform:uppercase;margin:0;width:100%}
-.yenny-feature .yenny-sub{font:400 12px/1.4 Arial,sans-serif;color:#5a6c64;margin:0;flex:1 1 200px}
-.yenny-feature .yenny-cta{display:inline-flex;align-items:center;flex:0 0 auto;border-radius:9px;padding:8px 11px;background:#12624f;color:#fff;text-decoration:none;font:700 12px/1.3 Arial,sans-serif}
-.yenny-feature .yenny-cta:hover{background:#0c4739}
-@media(max-width:600px){
-.yenny-feature{padding:8px 10px}
-.yenny-feature .yenny-card{gap:9px;padding:9px 10px;border-radius:13px}
-.yenny-feature .yenny-photo{width:54px;height:54px;flex-basis:54px}
-.yenny-feature .yenny-body{display:block}
-.yenny-feature .yenny-eyebrow{font-size:9px;margin-bottom:2px}
-.yenny-feature .yenny-body h2{font-size:13px;line-height:1.3}
-.yenny-feature .yenny-sub{font-size:10.5px;line-height:1.35;margin:2px 0 5px}
-.yenny-feature .yenny-cta{font-size:10.5px;background:none;color:#12624f;font-weight:800;padding:0;text-decoration:underline}
+/* Properti Y2K: identitas agen langsung di header */
+.site-head .nav-inner{display:flex;align-items:center;gap:14px;justify-content:space-between}
+.site-head .yenny-header{display:flex;align-items:center;gap:11px;text-decoration:none;min-width:0;flex:0 1 auto}
+.site-head .yenny-header img{width:56px;height:56px;min-width:56px;border-radius:50%;object-fit:cover;object-position:center 15%;background:#ffdb00;border:2px solid #d4b677}
+.site-head .yenny-head-info{display:flex;flex-direction:column;gap:2px;min-width:0}
+.site-head .yenny-head-info strong{color:#133d34;font:800 16px/1.25 Manrope,Arial,sans-serif;white-space:nowrap}
+.site-head .yenny-head-info small{font:500 11px/1.35 'DM Sans',Arial,sans-serif;color:#5e706b}
+.site-head .nav-links{margin-left:auto}
+.hero .hero-inner{padding-top:48px!important;padding-bottom:64px!important}
+.hero .hero-inner .eyebrow{font-size:11px!important;letter-spacing:.12em!important}
+.hero .hero-inner h1{font-size:clamp(29px,4.2vw,52px)!important;line-height:1.18!important;max-width:750px!important;margin:15px 0!important}
+.hero .hero-inner p{font-size:clamp(14px,1.7vw,17px)!important;line-height:1.6!important;max-width:600px!important;margin-bottom:22px!important}
+@media(max-width:780px){
+.site-head .nav-inner{padding-top:12px;padding-bottom:12px;gap:8px}
+.site-head .yenny-header{gap:8px;flex:1 1 auto}
+.site-head .yenny-header img{width:46px;height:46px;min-width:46px}
+.site-head .yenny-head-info strong{font-size:13px;white-space:normal}
+.site-head .yenny-head-info small{font-size:10px;line-height:1.25}
+.site-head .head-contact{font-size:11px!important;padding:11px 10px!important;white-space:nowrap;flex-shrink:0}
+.hero .hero-inner{padding-top:38px!important;padding-bottom:46px!important}
+.hero .hero-inner h1{font-size:clamp(28px,7.7vw,39px)!important;line-height:1.2!important}
+.hero .hero-inner .eyebrow{font-size:9px!important;letter-spacing:.08em!important}
+.hero .hero-inner p{font-size:14px!important}
 }
+@media(max-width:380px){.site-head .yenny-header img{width:41px;height:41px;min-width:41px}.site-head .yenny-head-info strong{font-size:12px}.site-head .head-contact{font-size:10px!important;padding:9px 7px!important}}
 </style></head><body>
-<header class="site-head"><div class="shell nav-inner"><a class="brand" href="index.html"><span class="brand-mark">⌂</span><span>PROPERTI <b>Y2K</b></span></a><nav class="nav-links" aria-label="Menu"><a href="index.html">Beranda</a><a href="#properti">Properti</a><a href="katalog.html">Katalog Brighton</a><a href="#tentang">Tentang</a><a href="#kontak">Kontak</a></nav><a class="head-contact" id="headerWa" target="_blank" rel="noopener">✆ Hubungi Kami</a></div></header>
+<header class="site-head"><div class="shell nav-inner"><a class="yenny-header" href="https://www.brighton.co.id/yeni1" target="_blank" rel="noopener noreferrer" title="Lihat profil Yenny Khuang di Brighton"><img src="yenny-khuang.jpg" alt="Yenny Khuang" width="56" height="56"><span class="yenny-head-info"><strong>Yenny Khuang, CRA®</strong><small>Business Manager · Brighton Wisdom</small></span></a><nav class="nav-links" aria-label="Menu"><a href="index.html">Beranda</a><a href="#properti">Properti</a><a href="katalog.html">Katalog Brighton</a><a href="#tentang">Tentang</a><a href="#kontak">Kontak</a></nav><a class="head-contact" id="headerWa" target="_blank" rel="noopener">✆ Hubungi Kami</a></div></header>
 
-<section class="yenny-feature" aria-labelledby="yenny-title"><div class="yenny-card">
-<img class="yenny-photo" src="yenny-khuang.jpg" alt="Foto Yenny Khuang" loading="eager" width="66" height="66">
-<div class="yenny-body"><p class="yenny-eyebrow">Mitra Properti Y2K</p><h2 id="yenny-title">Yenny Khuang, CRA®</h2><p class="yenny-sub">Business Manager · Brighton Wisdom, Medan</p><a class="yenny-cta" href="https://www.brighton.co.id/yeni1" target="_blank" rel="noopener noreferrer">Lihat profil Brighton ↗</a></div>
-</div></section>
-<main><section class="hero"><div class="hero-layer"></div><div class="shell hero-inner"><div class="eyebrow">✦ YOUR TRUSTED PROPERTY PARTNER</div><h1>Temukan ruang untuk<br><em>hidup lebih istimewa.</em></h1><p>Rumah, villa, apartemen, ruko, dan tanah pilihan. Jelajahi properti yang sesuai dengan impian Anda.</p><a href="#properti" class="hero-cta">Jelajahi Properti <span>↗</span></a></div></section>
+<main><section class="hero"><div class="hero-layer"></div><div class="shell hero-inner"><div class="eyebrow">✦ KONSULTASI & PEMASARAN PROPERTI</div><h1>Kami siap membantu Anda<br><em>menemukan properti yang tepat.</em></h1><p>Dapatkan pendampingan personal untuk memilih rumah, tanah, ruko, atau properti investasi sesuai kebutuhan dan rencana Anda.</p><a href="#properti" class="hero-cta">Jelajahi Properti <span>↗</span></a></div></section>
 <section class="finder-wrap shell" aria-label="Pencarian properti"><div class="finder"><div class="filter-title"><span>⌕</span><div><strong>Cari properti impian</strong><small>Sesuaikan pilihan dengan kebutuhan Anda</small></div></div><div class="filter-fields"><label><span>Kata kunci / lokasi</span><input type="search" id="search" placeholder="Contoh: Medan, villa..." autocomplete="off"></label><label><span>Status</span><select id="statusFilter"><option value="">Semua status</option><option>Dijual</option><option>Disewa</option></select></label><label><span>Harga maksimum</span><select id="priceFilter"><option value="">Semua harga</option><option value="500000000">Rp 500 juta</option><option value="1000000000">Rp 1 miliar</option><option value="3000000000">Rp 3 miliar</option><option value="5000000000">Rp 5 miliar</option><option value="10000000000">Rp 10 miliar</option></select></label><button id="findButton" type="button" class="search-btn">Cari Properti →</button></div></div></section>
 <section class="catalog shell" id="properti"><div class="section-head"><div><div class="overline">✦ PILIHAN TERBAIK</div><h2>Properti <em>Tersedia</em></h2><p>Koleksi properti pilihan untuk kehidupan dan investasi Anda.</p></div><div id="resultCount" class="result-count">Memuat koleksi...</div></div><div id="list" class="lux-grid" aria-live="polite"><div class="empty-state">Memuat properti...</div></div></section>
 <section class="about" id="tentang"><div class="shell about-inner"><div><div class="overline">MENGAPA PROPERTI Y2K</div><h2>Properti istimewa,<br><em>layanan personal.</em></h2></div><p>Temukan penawaran properti dengan informasi yang jelas, foto lengkap, dan konsultasi langsung dengan agen. Kami membantu Anda menjelajahi pilihan yang tepat dengan lebih mudah.</p></div></section>
