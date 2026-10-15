@@ -1,12 +1,36 @@
 (() => {
- const audio=$('bgMusic'), btn=$('musicToggle'), st=$('musicStatus'), vol=$('musicVolume');
- const refresh=()=>{ const playing=!audio.paused;btn.textContent=playing?'Ⅱ':'▶';btn.setAttribute('aria-label',playing?'Jeda musik':'Putar musik');st.textContent=playing?'Sedang diputar':'Ketuk untuk memutar';};
- audio.volume=.24; vol.oninput=()=>{audio.volume=Number(vol.value)/100;};
- const play=async()=>{try {await audio.play();}catch(e){refresh();}};
- btn.onclick=()=>{audio.paused?play():audio.pause();};
- audio.addEventListener('play',refresh);audio.addEventListener('pause',refresh);audio.addEventListener('error',()=>{st.textContent='Musik tidak tersedia';});
- $('musicHide').onclick=()=>{$('musicWidget').hidden=true;$('musicReopen').hidden=false;};
- $('musicReopen').onclick=()=>{$('musicWidget').hidden=false;$('musicReopen').hidden=true;};
- // Browser modern may reject autoplay with audio; keep the explicit play control usable.
- play(); refresh();
+  'use strict';
+  const audio = document.getElementById('bgMusic');
+  if (!audio) return;
+
+  audio.volume = 0.24;
+  audio.loop = true;
+  audio.preload = 'auto';
+  let started = false;
+
+  async function attemptPlayback() {
+    if (started || !audio.paused) return;
+    try {
+      await audio.play();
+      started = true;
+      removeListeners();
+    } catch (error) {
+      // Browser blocks sound before interaction: try on the next user gesture.
+      if (error?.name !== 'NotAllowedError') {
+        console.info('Musik belum bisa diputar:', error?.message || error);
+      }
+    }
+  }
+
+  function removeListeners() {
+    document.removeEventListener('pointerdown', attemptPlayback);
+    document.removeEventListener('keydown', attemptPlayback);
+    document.removeEventListener('touchend', attemptPlayback);
+  }
+
+  // Browsers may block audible autoplay; user interaction is the fallback.
+  document.addEventListener('pointerdown', attemptPlayback, { passive: true });
+  document.addEventListener('touchend', attemptPlayback, { passive: true });
+  document.addEventListener('keydown', attemptPlayback);
+  attemptPlayback();
 })();
