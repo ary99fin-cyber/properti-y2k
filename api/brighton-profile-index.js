@@ -5,7 +5,8 @@ module.exports = async function handler(req,res){
  if(req.method!=='GET'){res.setHeader('Allow','GET');return res.status(405).json({error:'Method not allowed'});}
  let url;try{url=new URL(req.query.url);if(url.protocol!=='https:'||!['www.brighton.co.id','brighton.co.id'].includes(url.hostname)||!/^\/[A-Za-z0-9_-]+\/?$/.test(url.pathname)||url.search||url.hash)throw Error('Invalid profile');}catch{return res.status(400).json({error:'URL profil Brighton tidak valid'});}
  try{
-  const response=await fetch(url.toString(),{redirect:'error',headers:{'User-Agent':'Mozilla/5.0 (compatible; Y2KProfileIndexer/1.0)','Accept':'text/html'},signal:AbortSignal.timeout(9000)});
+  const response = await fetch(url.toString(), {
+  redirect: 'follow',
   if(!response.ok)throw Error('Brighton HTTP '+response.status);
   const type=response.headers.get('content-type')||'';if(!type.includes('text/html'))throw Error('Respons bukan HTML');
   const size=Number(response.headers.get('content-length')||0);if(size>MAX_HTML)throw Error('Halaman terlalu besar');
