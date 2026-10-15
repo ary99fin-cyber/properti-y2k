@@ -13,5 +13,17 @@ module.exports = async function handler(req,res){
   const regex=/(?:href|"url")\s*[=:]\s*["'](\/cari-properti\/view\/[^"'?#<>\s]+|https:\/\/(?:www\.)?brighton\.co\.id\/cari-properti\/view\/[^"'?#<>\s]+)["']/gi;
   const found=new Map();let m;while((m=regex.exec(html))!==null&&found.size<100){try{const link=new URL(m[1],url);if(['brighton.co.id','www.brighton.co.id'].includes(link.hostname)){link.hash='';link.search='';found.set(link.href,{url:link.href,title:decodeURIComponent(link.pathname.split('/').at(-1)).replace(/-/g,' ').slice(0,150),location:''});}}catch{}}
   return res.status(200).json({listings:[...found.values()],note:'Hanya link yang terlihat dalam HTML awal. Profil Brighton dapat memuat sebagian/semua listing secara dinamis; hasil 0 bukan berarti agen tidak punya listing.'});
- }catch(err){return res.status(502).json({error:'Tidak bisa membaca profil Brighton: '+err.message});}
-};
+
+}catch(err){
+  console.error('BRIGHTON FETCH ERROR:', {
+    message: err.message,
+    cause: err.cause?.message,
+    code: err.cause?.code,
+    errno: err.cause?.errno
+  });
+
+  return res.status(502).json({
+    error: 'Gagal menghubungi Brighton. Periksa Logs Vercel.'
+  });
+}
+ };
