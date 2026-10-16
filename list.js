@@ -1,13 +1,15 @@
 (() => {
-  const box = $("list"), count = $("resultCount"), q = $("search"), status = $("statusFilter"), price = $("priceFilter");
+  const box = $("list"), count = $("resultCount"), q = $("search"), price = $("priceFilter");
+  const statusRadios = document.querySelectorAll('input[name="status"]');
+  const status = { get value() { const c = document.querySelector('input[name="status"]:checked'); return c ? c.value : ''; } };
   let properties = [];
   function card(p) {
     const a = document.createElement("a"); a.className = "lux-card"; a.href = "p.html?id=" + encodeURIComponent(p.id);
-    a.innerHTML = `<div class="lux-photo"><img alt="Foto properti" loading="lazy"><span class="lux-pill"></span><span class="photo-count"></span></div><div class="lux-card-body"><div class="lux-location"></div><h3></h3><div class="lux-card-bottom"><div class="lux-price"></div><span class="detail-arrow" aria-label="Lihat detail">↗</span></div></div>`;
+    a.innerHTML = `<div class="lux-photo"><img alt="Foto properti" loading="lazy"><span class="lux-pill"></span><span class="photo-count"></span></div><div class="lux-card-body"><div class="lux-price"></div><h3></h3><div class="lux-location"></div></div>`;
     setImg(a.querySelector('img'), (Array.isArray(p.foto) ? p.foto : [])[0]);
     a.querySelector('.lux-pill').textContent = p.status || 'Properti';
-    a.querySelector('.photo-count').textContent = Array.isArray(p.foto) && p.foto.length > 1 ? '▣ '+p.foto.length+' foto' : '';
-    a.querySelector('.lux-location').textContent = '⌖  ' + (p.lokasi || 'Lokasi tersedia');
+    a.querySelector('.photo-count').textContent = Array.isArray(p.foto) && p.foto.length > 1 ? p.foto.length+' foto' : '';
+    a.querySelector('.lux-location').textContent = (p.lokasi || 'Lokasi tersedia');
     a.querySelector('h3').textContent = p.judul || 'Properti';
     a.querySelector('.lux-price').textContent = rupiah(p.harga);
     return a;
@@ -20,7 +22,7 @@
     if (!rows.length) { const e = document.createElement('div'); e.className='empty-state'; e.textContent=properties.length ? 'Tidak ada properti yang cocok. Coba ubah filter pencarian.' : 'Belum ada properti. Tambahkan melalui halaman admin.'; box.appendChild(e); return; }
     rows.forEach(p => box.appendChild(card(p)));
   }
-  [q,status,price].forEach(x => x.addEventListener('input',render));
+  [q,price,...statusRadios].forEach(x => x.addEventListener(x.type === 'search' ? 'input' : 'change',render));
   $("findButton").onclick=()=>{$("properti").scrollIntoView({behavior:'smooth'}) ; render();};
   const wa = String(CONFIG.WA||'').replace(/\D/g,'');
   ['headerWa','bottomWa'].forEach(id => { const a = $(id); a.href = wa ? 'https://wa.me/'+wa+'?text='+encodeURIComponent('Halo, saya ingin konsultasi properti.') : '#kontak'; });
