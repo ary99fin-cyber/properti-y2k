@@ -81,5 +81,15 @@ module.exports = async (req,res) => {
     const descHeading=$('h2,h3').filter((_,e)=>/^(keterangan|deskripsi)$/i.test(norm($(e).text()))).first();
     const desc=norm(descHeading.next().text() || descHeading.parent().next().text()).slice(0,3000);
     return res.status(200).json({url:target.href,judul:title, lokasi:location,harga:price,status:/sewa/i.test(body.slice(0,700))?'Disewa':'Dijual',spesifikasi:details.join('\n'),deskripsi:desc,foto:[...photos].slice(0,25),warnings:photos.size===0?['Foto galeri belum teridentifikasi. Tambahkan foto secara manual atau periksa struktur halaman Brighton.']:[],source:'Brighton',tested:false});
-  }catch(e){return res.status(400).json({error:e.message||'Gagal membaca listing Brighton.'});}
+  }catch(e){
+    const code=e.cause?.code||e.code||'';
+    const network=e instanceof TypeError && /fetch failed/i.test(e.message);
+    const timeout=e.name==='TimeoutError'||e.name==='AbortError'||/timeout/i.test(code);
+    const detail=timeout?'timeout':network?'network':'request';
+    console.error('BRIGHTON_IMPORT_FAILURE',{type:detail,code:String(code).slice(0,40),message:String(e.message).slice(0,130)});
+    return res.status(network||timeout?502:400).json({
+      error:network?'Server Y2K tidak dapat terhubung ke Brighton. Data lama aman. Coba lagi nanti atau gunakan teks Bagikan Brighton.':timeout?'Koneksi ke Brighton melewati batas waktu. Coba lagi nanti.':e.message||'Gagal membaca listing Brighton.',
+      reason:detail
+    });
+  }
 };
