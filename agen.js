@@ -37,7 +37,7 @@ function readShareBlocks(value) {
     cursor = m.index + m[0].length;
     if (!url || byURL.has(url)) continue;
     const lines = raw.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
-    const start = lines.findIndex((x,i) => i+1 < lines.length && /^(?:JualSewa|Jual|Sewa)\s+/i.test(lines[i+1]));
+    const start = lines.findLastIndex((x,i) => i+1 < lines.length && /^(?:JualSewa|Jual|Sewa)\s+/i.test(lines[i+1]));
     const body = start < 0 ? lines : lines.slice(start);
     const title = (body[0] || 'Listing Brighton').slice(0,240);
     const transactionLine = body.find(x => /^(?:JualSewa|Jual|Sewa)\s+/i.test(x)) || '';
