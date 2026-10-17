@@ -1,0 +1,63 @@
+/* Home-only premium black gold overrides. Loaded after brighton.css. */
+:root{--bg:#101114;--soft:#181a1e;--card:#1b1d21;--ink:#f1eadc;--mute:#b6ac9b;--line:#403727;--accent:#e0bf7e;--y:#d9b66f;--y-soft:#33291b;--y-ink:#c6a36b}
+body{background:var(--bg);color:var(--ink);color-scheme:dark}
+.site-head{background:#121417ed;border-bottom:1px solid #6c5737;backdrop-filter:blur(12px)}
+.yenny-head-info strong,.nav-links a{color:#f5ebd5}
+.yenny-head-info small{color:#bcae95}
+.yenny-header img{border-color:#b99250;background:#221e19}
+.nav-links a:hover{color:#f6d990;border-color:#c7a35e}
+.head-contact{background:#b9975a;color:#17140d}
+.head-contact:hover{background:#e2c17c}
+.hero{background:radial-gradient(ellipse at 78% 12%,#59472a66,transparent 60%),linear-gradient(145deg,#1b1c1e,#101114 65%);border-bottom:1px solid #4c3d26}
+.hero-inner{color:#f7f0e5}
+.eyebrow{background:#44341dbb;color:#edcf91;border:1px solid #866b41}
+.eyebrow .dot{background:#e8c784}
+.hero h1{color:#f9f3e7}
+.hero h1 em{color:#e3c17d;background:none}
+.hero p{color:#d2c7b5}
+.finder{background:#1c1e22dd;border:1px solid #4e412e;border-radius:17px;padding:20px;box-shadow:0 16px 44px #0005}
+.search-pill{background:#2d2a26;border:1px solid #aa8951;color:#e8c985}
+.search-pill input{color:#f9f1e2}
+.search-pill input::placeholder{color:#aa9a82;opacity:1}
+.status-toggle span{color:#ddceae;border-color:#655338}
+.status-toggle span:hover{border-color:#e0bc76}
+.status-toggle input:checked+span{color:#1b1711;background:#d9b66f;border-color:#d9b66f}
+.chip select{background:#262626;color:#f0dfbd;border-color:#846b44;box-shadow:none;appearance:auto;padding-right:12px}
+.search-btn{background:#d4ae69;color:#1b160f}
+.search-btn:hover{background:#f0d18f}
+.catalog{border-top:0}
+.crumbs,.crumbs a{color:#ab9c87}
+.crumbs span:last-child,.section-head h2{color:#f0e3ca}
+.result-count{color:#c9b38b}
+.lux-card{background:#1d1f24;border:1px solid #52432d;box-shadow:0 5px 24px #0004}
+.lux-card:hover{box-shadow:0 12px 32px #0009;border-color:#aa854b}
+.lux-photo{background:#28292a}
+.lux-pill{background:#d5b270;color:#20190d;font-size:11px;padding:5px 9px}
+.photo-count{background:#14171bcc;color:#f3e2c2}
+.lux-card-body{padding:13px 15px 15px}
+.lux-price{font-size:17px;color:#e6c480;margin-bottom:4px}
+.lux-card h3{font-size:13px;color:#f5efdf;line-height:1.35;margin:0 0 5px}
+.lux-location{font-size:11px;color:#bdad93}
+.empty-state{background:#1d1e22;color:#ccb995;border-color:#78603d}
+.overline,.about .overline{color:#d4b16d}
+.about{background:#19191c;border-top:1px solid #4f3d24;border-bottom:1px solid #4f3d24}
+.about h2,.contact-section h2{color:#f4ead8}
+.about h2 em,.contact-section h2 em{color:#dcb776;background:none}
+.about-inner p,.contact-section p{color:#c5b9a4}
+.contact-cta{background:#caa565;color:#1d170e;padding:11px 18px;font-size:12px}
+.site-foot{background:#0d0e10;border-top:1px solid #3f3220}
+.site-foot .brand b{color:#ddbb77}
+#y2kBotLauncher{background:#24201ccc!important;color:#efcc86!important;border:1px solid #b48c50!important;font-size:11px!important;box-shadow:0 4px 17px #0008!important;backdrop-filter:blur(10px)}
+#y2kBotHeader{background:#2d251c}
+@media(max-width:780px){
+.hero-inner{padding:27px 0}
+.finder{padding:13px;gap:10px}
+.search-pill{height:46px;padding:0 14px}
+.status-toggle span{font-size:12px;padding:8px 5px}
+.chip select,.search-btn{height:40px;font-size:12px}
+.catalog{padding-top:20px;padding-bottom:50px}
+.crumbs{margin:6px 0 18px;font-size:12px}
+.lux-grid{gap:13px}
+.lux-photo{aspect-ratio:16/10}
+}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
