@@ -96,7 +96,7 @@ el('bulkSave').onclick=async()=>{
  try{
    // Batasi per batch agar tidak membebani API/database.
    for(let i=0;i<bulkItems.length;i+=20){
-     const batch=bulkItems.slice(i,i+20).map(x=>({agent_id:agent.id,...x}));
+     const batch=bulkItems.slice(i,i+20).map(x=>({agent_id:agent.id,url:x.url,title:x.title,location_text:x.location_text,property_type:x.property_type,listing_status:x.listing_status,land_area_m2:x.land_area_m2,building_area_m2:x.building_area_m2,price_idr:x.sale_price_idr??x.rent_price_idr}));
      const {error}=await sb.from('y2k_listing_index').upsert(batch,{onConflict:'agent_id,url'});
      if(error) throw Error(error.message);
      saved+=batch.length;
