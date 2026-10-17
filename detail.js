@@ -1,7 +1,45 @@
 (async () => {
-  const id = new URLSearchParams(location.search).get("id");
-  const { data: P, error } = await sb.from("properties").select("*").eq("id", id).single();
-  if (error || !P) { $("app").innerHTML = '<p class="block">Properti tidak ditemukan. <a class="link" href="index.html">Kembali</a></p>'; return; }
+  const params = new URLSearchParams(location.search);
+  const id = params.get("id");
+  const brighton = params.get("brighton");
+  let P, error;
+  if (brighton) {
+    // Only fetch listings deliberately published for visitors.
+    const norm = v => String(v || '').trim().replace(/\/+$/, '');
+    const safeUrl = v => {
+      try { const u = new URL(v); return u.protocol === 'https:' && ['brighton.co.id','www.brighton.co.id'].includes(u.hostname.toLowerCase()) ? u.href : null; }
+      catch (_) { return null; }
+    };
+    const validUrl = safeUrl(brighton);
+    if (!validUrl) {
+      $("app").textContent = "Tautan properti tidak valid."; return;
+    }
+    const [dr, ir] = await Promise.all([
+      sb.from("y2k_listing_details").select("*").eq("publish_status", "published"),
+      sb.from("y2k_listing_index").select("url,title,location_text,listing_status,price_idr")
+    ]);
+    error = dr.error || ir.error;
+    const detail = (dr.data || []).find(x => norm(x.source_url) === norm(validUrl));
+    const idx = (ir.data || []).filter(x => norm(x.url) === norm(validUrl)).sort((a,b) => Number(b.price_idr || 0) - Number(a.price_idr || 0))[0];
+    if (detail && idx) {
+      const images = Array.isArray(detail.image_urls) ? detail.image_urls.filter(x => typeof x === 'string' && x.startsWith('https://')) : [];
+      const st = String(detail.listing_status || idx.listing_status || '').toLowerCase();
+      const status = st === 'jual' ? 'Dijual' : st === 'sewa' ? 'Disewa' : 'Properti';
+      P = {
+        judul: detail.title || idx.title || 'Properti Brighton',
+        lokasi: detail.location_text || idx.location_text || '',
+        status, harga: Number(idx.price_idr || 0),
+        deskripsi: typeof detail.description === 'string' ? detail.description : 'Informasi lengkap dan ketersediaan dapat dikonfirmasi kepada agen.',
+        spesifikasi: typeof detail.spesifikasi === 'string' ? detail.spesifikasi : '',
+        fasilitas: typeof detail.fasilitas === 'string' ? detail.fasilitas : '',
+        foto: images, brighton_url: validUrl
+      };
+    }
+  } else if (id) {
+    const r = await sb.from("properties").select("*").eq("id", id).single();
+    P = r.data; error = r.error;
+  }
+  if (error || !P) { $("app").innerHTML = '<p class="block">Properti tidak ditemukan atau belum dipublikasikan. <a class="link" href="index.html">Kembali</a></p>'; return; }
   const fotos = (P.foto && P.foto.length ? P.foto : [""]).map((f, i) => ({ file: f, ket: "Foto " + (i + 1) }));
   let idx = 0;
   document.title = P.judul;
