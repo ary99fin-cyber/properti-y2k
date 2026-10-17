@@ -5,3 +5,15 @@ textarea{display:block;width:100%;border:1px solid #cbd7d1;border-radius:9px;pad
 .photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}.photo-preview{margin:0;position:relative;border:1px solid #dce3dc;border-radius:12px;overflow:hidden;background:#ecf1ed}.photo-preview img{display:block;width:100%;height:180px;object-fit:cover}.photo-brand-preview{position:absolute;top:10px;left:10px;right:auto;bottom:auto;z-index:2;display:inline-flex;align-items:center;justify-content:center;width:max-content;max-width:calc(100% - 20px);background:rgba(12,12,14,.58);color:#e9d4a7;font-size:11px;font-weight:750;letter-spacing:.10em;line-height:1.3;text-align:center;padding:6px 12px;border:1px solid rgba(233,212,167,.48);border-radius:999px;text-shadow:0 1px 2px rgba(0,0,0,.3);box-shadow:0 2px 9px rgba(0,0,0,.17);pointer-events:none;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}.photo-preview{border:1px solid #dce3dc}.photo-preview img{height:250px}@media(min-width:680px){.photo-preview img{height:260px}.photo-brand-preview{font-size:11px}}.photo-preview figcaption{padding:8px;font-size:12px}
 
 .photo-choice{display:flex;align-items:center;gap:7px;margin:2px 0;font-size:.83rem;font-weight:650}.photo-choice input{width:17px;height:17px;margin:0;accent-color:#a8874f;flex-shrink:0}.photo-preview:has(.photo-select:checked){outline:2px solid #b9985a;outline-offset:2px}
+
+/* Batch impor foto: ringkas untuk layar ponsel */
+#massPhotoPanel select{display:block;width:100%;max-width:210px;margin-top:7px;padding:11px;border:1px solid #cbd7d1;border-radius:9px;background:white;font:inherit}
+.mass-list{max-height:430px;overflow-y:auto;border-top:1px solid #e5e8e3;margin-top:12px}
+.mass-row{display:flex;align-items:flex-start;gap:12px;padding:11px 3px;border-bottom:1px solid #e5e8e3;margin:0;font-size:14px;cursor:pointer}
+.mass-row input{flex:0 0 18px;width:18px;height:18px;accent-color:#a8874f;margin:3px 0 0}
+.mass-row span{min-width:0;overflow-wrap:anywhere}
+.mass-row strong{font-size:14px;display:block;color:#283329;line-height:1.35}
+.mass-row small{display:block;color:#7a7b72;font-size:12px;line-height:1.4;margin-top:3px}
+.mass-row .mass-result{color:#66512c}
+#massStatus{font-weight:600;color:#5c584c;font-size:13px}
+@media(max-width:600px){#massPhotoPanel .actions{align-items:stretch}#massPhotoPanel .actions button{flex:1 1 155px}}
