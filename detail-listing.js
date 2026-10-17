@@ -32,6 +32,7 @@ async function start(){
  el('state').textContent='';
  el('draft').hidden=d.publish_status!=='draft';
  el('tag').textContent=d.listing_status==='jual_sewa'?'Jual & Sewa':d.listing_status==='sewa'?'Disewa':d.listing_status==='jual'?'Dijual':'Properti';
+ const promo=el('promoBadge');if(d.promo_label==='harga_menarik'||d.promo_label==='nego_sampai_jadi'){promo.textContent=d.promo_label==='harga_menarik'?'✦ Harga Menarik':'Nego Sampai Jadi';promo.hidden=false;}
  el('title').textContent=d.title||'Properti Brighton';document.title=(d.title||'Detail Properti')+' | Y2K PROPERTY';
  el('location').textContent=d.location_text||'Lokasi belum dilengkapi';
  for(const [label,p] of [['Harga jual',d.sale_price_idr],['Harga sewa',d.rent_price_idr]]){
