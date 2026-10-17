@@ -21,7 +21,22 @@ module.exports = async (req,res) => {
   if (req.method !== 'POST') return res.status(405).json({error:'Gunakan POST.'});
   try {
     const target=validUrl(req.body?.url);
-    const response=await fetch(target.href,{headers:{'User-Agent':'Mozilla/5.0 (compatible; PropertyY2K/1.0)','Accept':'text/html'},redirect:'error',signal:AbortSignal.timeout(13000)});
+    // Ikuti redirect resmi Brighton secara terbatas; jangan pernah keluar dari domain yang diizinkan.
+    let current=target;
+    let response;
+    for(let attempt=0;attempt<4;attempt++){
+      response=await fetch(current.href,{
+        headers:{'User-Agent':'Mozilla/5.0 (compatible; PropertyY2K/1.0)','Accept':'text/html'},
+        redirect:'manual',signal:AbortSignal.timeout(13000)
+      });
+      if(![301,302,303,307,308].includes(response.status))break;
+      if(attempt===3)throw Error('Terlalu banyak redirect Brighton.');
+      const next=response.headers.get('location');
+      if(!next)throw Error('Redirect Brighton tanpa tujuan.');
+      const dest=new URL(next,current.href);
+      if(dest.protocol!=='https:'||!['brighton.co.id','www.brighton.co.id'].includes(dest.hostname)||dest.username||dest.password||dest.port)throw Error('Redirect keluar dari domain Brighton diblokir.');
+      current=dest;
+    }
     if(!response.ok) throw Error('Halaman Brighton tidak dapat dibaca (HTTP '+response.status+').');
     const html=await response.text();
     if(html.length>5_000_000) throw Error('Halaman terlalu besar.');
@@ -83,10 +98,14 @@ module.exports = async (req,res) => {
     return res.status(200).json({url:target.href,judul:title, lokasi:location,harga:price,status:/sewa/i.test(body.slice(0,700))?'Disewa':'Dijual',spesifikasi:details.join('\n'),deskripsi:desc,foto:[...photos].slice(0,25),warnings:photos.size===0?['Foto galeri belum teridentifikasi. Tambahkan foto secara manual atau periksa struktur halaman Brighton.']:[],source:'Brighton',tested:false});
   }catch(e){
     const code=e.cause?.code||e.code||'';
+    const causeMessage=e.cause?.message||'';
+    const causeName=e.cause?.name||'';
+    const syscall=e.cause?.syscall||'';
+    const hostname=e.cause?.hostname||'';
     const network=e instanceof TypeError && /fetch failed/i.test(e.message);
     const timeout=e.name==='TimeoutError'||e.name==='AbortError'||/timeout/i.test(code);
     const detail=timeout?'timeout':network?'network':'request';
-    console.error('BRIGHTON_IMPORT_FAILURE',{type:detail,code:String(code).slice(0,40),message:String(e.message).slice(0,130)});
+    console.error('BRIGHTON_IMPORT_FAILURE',{type:detail,code:String(code).slice(0,40),message:String(e.message).slice(0,130),cause:String(causeMessage).slice(0,180),causeName:String(causeName).slice(0,40),syscall:String(syscall).slice(0,30),hostname:String(hostname).slice(0,80)});
     return res.status(network||timeout?502:400).json({
       error:network?'Server Y2K tidak dapat terhubung ke Brighton. Data lama aman. Coba lagi nanti atau gunakan teks Bagikan Brighton.':timeout?'Koneksi ke Brighton melewati batas waktu. Coba lagi nanti.':e.message||'Gagal membaca listing Brighton.',
       reason:detail
