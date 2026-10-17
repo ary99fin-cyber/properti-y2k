@@ -5,17 +5,52 @@
   let properties = [];
   const previewMode = new URLSearchParams(location.search).get('preview') === '1';
   let previewStatus = '';
+  if (previewMode) document.body.classList.add('y2k-dark-preview');
   function card(p) {
-    const a = document.createElement("a"); a.className = "lux-card"; a.href = p.y2kSource ? "/detail-listing.html?url=" + encodeURIComponent(p.y2kSource) : "p.html?id=" + encodeURIComponent(p.id);
-    a.innerHTML = `<div class="lux-photo"><img alt="Foto properti" loading="lazy"><span class="lux-pill"></span><span class="photo-count"></span><span class="promo-ribbon" hidden></span></div><div class="lux-card-body"><div class="lux-price"></div><h3></h3><div class="lux-location"></div></div>`;
-    setImg(a.querySelector('img'), (Array.isArray(p.foto) ? p.foto : [])[0]);
-    a.querySelector('.lux-pill').textContent = p.status || 'Properti';
+    const a=document.createElement('a');a.className='lux-card';a.href=p.y2kSource?'/detail-listing.html?url='+encodeURIComponent(p.y2kSource):'p.html?id='+encodeURIComponent(p.id);
+    a.innerHTML='<div class="lux-photo"><img class="lux-main-image" alt="Foto properti" loading="lazy"><span class="lux-pill"></span><span class="photo-count"></span><span class="promo-ribbon" hidden></span><div class="lux-previews" aria-label="Pratinjau foto lain"></div><span class="lux-photo-index" hidden></span></div><div class="lux-card-body"><div class="lux-price"></div><h3></h3><div class="lux-location"></div></div>';
+    const photos=Array.isArray(p.foto)?p.foto.filter(x=>typeof x==='string'&&x.startsWith('https://')):[];
+    const main=a.querySelector('.lux-main-image'),tray=a.querySelector('.lux-previews'),indexTag=a.querySelector('.lux-photo-index');
+    let current=0,lockNavigationUntil=0;
+    const thumbnailButtons=[];
+    function showPhoto(i){
+      if(!photos.length)return;
+      current=(i+photos.length)%photos.length;
+      setImg(main,photos[current]);
+      main.alt='Foto properti '+(current+1)+' dari '+photos.length;
+      indexTag.textContent=(current+1)+' / '+photos.length;
+      indexTag.hidden=photos.length<=1;
+      thumbnailButtons.forEach((b,j)=>{
+        const photoNumber=(current+1+j)%photos.length;
+        const img=b.querySelector('img');
+        if(img.dataset.src!==photos[photoNumber]){img.dataset.src=photos[photoNumber];setImg(img,photos[photoNumber]);}
+        b.setAttribute('aria-label','Lihat foto '+(photoNumber+1));
+      });
+    }
+    if(photos.length>1 && previewMode){
+      const count=Math.min(3,photos.length-1);
+      for(let i=0;i<count;i++){
+        const b=document.createElement('button');b.type='button';b.className='lux-thumb';b.title='Lihat foto selanjutnya';const img=document.createElement('img');img.alt='Pratinjau foto';img.loading='lazy';b.append(img);tray.append(b);thumbnailButtons.push(b);
+        b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();lockNavigationUntil=Date.now()+400;showPhoto(current+1+i);});
+      }
+      let downX=null,downY=null;
+      const photo=a.querySelector('.lux-photo');
+      photo.addEventListener('touchstart',e=>{if(e.touches.length===1){downX=e.touches[0].clientX;downY=e.touches[0].clientY;}},{passive:true});
+      photo.addEventListener('touchend',e=>{
+        if(downX==null)return;
+        const dx=e.changedTouches[0].clientX-downX,dy=e.changedTouches[0].clientY-downY;downX=null;downY=null;
+        if(Math.abs(dx)>35&&Math.abs(dx)>Math.abs(dy)*1.2){e.preventDefault();lockNavigationUntil=Date.now()+500;showPhoto(current+(dx<0?1:-1));}
+      },{passive:false});
+      a.addEventListener('click',e=>{if(Date.now()<lockNavigationUntil){e.preventDefault();}});
+    }
+    showPhoto(0);
+    a.querySelector('.lux-pill').textContent=p.status||'Properti';
     const promo=a.querySelector('.promo-ribbon');
     if(p.promoLabel==='harga_menarik'||p.promoLabel==='nego_sampai_jadi'){promo.textContent=p.promoLabel==='harga_menarik'?'✦ Harga Menarik':'Nego Sampai Jadi';promo.hidden=false;}
-    a.querySelector('.photo-count').textContent = Array.isArray(p.foto) && p.foto.length > 1 ? p.foto.length+' foto' : '';
-    a.querySelector('.lux-location').textContent = (p.lokasi || 'Lokasi tersedia');
-    a.querySelector('h3').textContent = p.judul || 'Properti';
-    a.querySelector('.lux-price').textContent = p.harga == null || Number(p.harga)<=0 ? 'Harga belum diisi' : rupiah(p.harga) + (p.isRent ? ' / sewa' : '');
+    a.querySelector('.photo-count').textContent=photos.length>1?photos.length+' foto':'';
+    a.querySelector('.lux-location').textContent=p.lokasi||'Lokasi tersedia';
+    a.querySelector('h3').textContent=p.judul||'Properti';
+    a.querySelector('.lux-price').textContent=p.harga==null||Number(p.harga)<=0?'Harga belum diisi':rupiah(p.harga)+(p.isRent?' / sewa':'');
     return a;
   }
   function render() {
