@@ -104,3 +104,47 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible+sp
 .search-btn{flex:1}
 }
 @media(max-width:380px){.yenny-head-info strong{font-size:12.5px}.yenny-head-info small{font-size:10px}.head-contact{padding:9px 10px;font-size:11px}}
+
+/* Private Y2K Preview — Black Gold header & photo hero.
+   Loaded last so all text/background contrast remains legible. */
+body.y2k-dark-preview .site-head{background:#151412;border-bottom:1px solid #5a472b;box-shadow:0 2px 14px #0004}
+body.y2k-dark-preview .yenny-head-info strong{color:#f8ebd6}
+body.y2k-dark-preview .yenny-head-info small{color:#c2b6a6}
+body.y2k-dark-preview .yenny-header img{border:2px solid #c5a164;background:#2a241b}
+body.y2k-dark-preview .nav-links a{color:#f2dec1}
+body.y2k-dark-preview .nav-links a:hover{color:#f4c979;border-bottom-color:#c7a164}
+body.y2k-dark-preview .head-contact{background:#b89458;color:#18130c;border:1px solid #ecd19d;font-weight:800}
+body.y2k-dark-preview .head-contact:hover{background:#dfbb7c}
+body.y2k-dark-preview .hero{
+ background-image:linear-gradient(95deg,rgba(10,9,9,.96) 0%,rgba(15,13,12,.88) 53%,rgba(18,15,11,.64) 100%),url('assets/hero-luxury.jpg');
+ background-color:#100e0c;background-size:cover;background-position:center 50%;
+ border-bottom:1px solid #655033;min-height:0;color:#f7ebd9
+}
+body.y2k-dark-preview .hero-inner{color:#f7ebd9;padding:42px 0 38px}
+body.y2k-dark-preview .eyebrow{background:#252016e8;color:#e4c48d;border:1px solid #665238;padding:7px 12px}
+body.y2k-dark-preview .eyebrow .dot{background:#d6b16d;box-shadow:0 0 0 3px #d6b16d26}
+body.y2k-dark-preview .hero h1{color:#fff8ea;text-shadow:0 2px 16px #0009;max-width:660px}
+body.y2k-dark-preview .hero h1 em{color:#f2cd85;background:none;padding:0}
+body.y2k-dark-preview .hero p{color:#e6d9c9;max-width:590px;text-shadow:0 1px 10px #000a}
+body.y2k-dark-preview .finder{background:#181613d9;padding:17px;border:1px solid #665035;border-radius:18px;backdrop-filter:blur(7px);max-width:820px}
+body.y2k-dark-preview .search-pill{background:#25211a;border:1px solid #af8b54;color:#e9d09d;box-shadow:none}
+body.y2k-dark-preview .search-pill input{color:#fff6e8}
+body.y2k-dark-preview .search-pill input::placeholder{color:#c5b39b;opacity:1;font-style:normal}
+body.y2k-dark-preview .search-pill svg{stroke:#d0af70}
+body.y2k-dark-preview .status-toggle span{color:#ead8bb;border-color:#756044;background:#211d18b8}
+body.y2k-dark-preview .status-toggle input:checked+span{background:#c3a16c;color:#18130d;border-color:#c3a16c}
+body.y2k-dark-preview .chip select{background:#25211c;color:#f0dec3;border:1px solid #9c7b4d;box-shadow:none}
+body.y2k-dark-preview .search-btn{background:#c6a167;color:#19130c}
+body.y2k-dark-preview .search-btn:hover{background:#e1bb7b}
+body.y2k-dark-preview .search-pill:focus-within,body.y2k-dark-preview button:focus-visible,body.y2k-dark-preview select:focus-visible{outline:2px solid #e9c889;outline-offset:3px}
+@media(max-width:780px){
+ body.y2k-dark-preview .site-head .nav-inner{min-height:70px}
+ body.y2k-dark-preview .hero-inner{padding:27px 0 29px}
+ body.y2k-dark-preview .hero h1{font-size:clamp(25px,6.8vw,33px);line-height:1.19;margin:15px 0 12px}
+ body.y2k-dark-preview .hero p{font-size:13px;line-height:1.6;margin-bottom:18px}
+ body.y2k-dark-preview .finder{padding:12px;border-radius:14px;gap:11px}
+ body.y2k-dark-preview .search-pill{height:49px}
+ body.y2k-dark-preview .status-toggle span{font-size:12px;padding:9px 5px}
+ body.y2k-dark-preview .chip select{font-size:13px;height:43px}
+ body.y2k-dark-preview .search-btn{font-size:13px;height:43px}
+}
