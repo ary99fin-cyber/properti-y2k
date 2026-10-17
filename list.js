@@ -49,7 +49,7 @@
         if (detailsResult.error) throw detailsResult.error;
         if (indexResult.error) throw indexResult.error;
 
-        const urlKey = value => String(value || '').trim().replace(/\\/+$/, '');
+        const urlKey = value => String(value || '').trim().replace(new RegExp('/+$'), '');
         const safeBrightonUrl = value => {
           try {
             const u = new URL(value);
@@ -72,7 +72,7 @@
           if (!key || !url || unique.has(key)) continue;
           const index = indexByUrl.get(key);
           const images = Array.isArray(detail.image_urls)
-            ? detail.image_urls.filter(src => typeof src === 'string' && /^https:\/\//i.test(src))
+            ? detail.image_urls.filter(src => typeof src === 'string' && src.startsWith('https://'))
             : [];
           const harga = Number(index?.price_idr || 0);
           if (!index || harga <= 0 || !images.length) continue;
