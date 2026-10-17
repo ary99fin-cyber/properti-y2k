@@ -108,8 +108,7 @@ el('bulkSave').onclick=async()=>{
      if(error)throw Error('Indeks tersimpan, tetapi detail gagal: '+error.message);
      detailSaved+=rows.length;
    }
-   el('bulkInfo').textContent=`Detail tersimpan ${detailSaved}. Periksa dahulu sebelum publikasi. `+
- Link yang sama untuk agen ini diperbarui, bukan digandakan. Status aktif/co-listing belum diverifikasi otomatis.`;
+   el('bulkInfo').textContent=`Detail tersimpan ${detailSaved}. Link yang sama diperbarui, bukan digandakan. Status listing belum diverifikasi.`;
    await list();
  }catch(err){el('bulkInfo').textContent=`Tersimpan/diproses ${saved}; proses berhenti: ${err.message}`;}
  finally {el('bulkSave').disabled=false;}
