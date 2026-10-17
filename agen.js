@@ -131,9 +131,10 @@ el('bulkSave').onclick=async()=>{
  finally {el('bulkSave').disabled=false;}
 };
 
+let photoCandidates=[];
 el('photoCheck').onclick=async()=>{
   const input=el('photoSource'),status=el('photoMessage'),root=el('photoResults');
-  root.replaceChildren();
+  root.replaceChildren();photoCandidates=[];el('photoSave').disabled=true;
   const url=normalizeListingURL(input.value.trim());
   if(!url){status.textContent='Gunakan link detail Brighton yang valid.';return;}
   if(!agent){status.textContent='Login dan simpan profil agen dahulu.';return;}
@@ -143,15 +144,85 @@ el('photoCheck').onclick=async()=>{
     const info=await res.json();
     if(!res.ok)throw Error(info.error||'Tidak dapat memeriksa galeri.');
     const photos=Array.isArray(info.foto)?info.foto.filter(u=>{try{const p=new URL(u);return p.protocol==='https:'&&p.hostname==='cdn.brighton.co.id';}catch{return false;}}):[];
+    photoCandidates=photos;
+    el('photoSave').disabled=!photos.length;
     status.textContent=photos.length?photos.length+' foto kandidat ditemukan. Periksa kesesuaiannya dengan listing asli. Foto belum disimpan.':'Belum ada foto galeri yang dapat dikenali secara otomatis. Kamu tetap bisa menambahkan foto sendiri.';
     for(const [i,u] of photos.entries()){
       const figure=document.createElement('figure');figure.className='photo-preview';
       const img=document.createElement('img');img.src=u;img.alt='Kandidat foto properti '+(i+1);img.loading='lazy';img.referrerPolicy='no-referrer';
       const mark=document.createElement('span');mark.textContent='Y2K PROPERTY';mark.className='photo-brand-preview';
-      const note=document.createElement('figcaption');note.textContent='Pratinjau #'+(i+1)+' · sumber Brighton';figure.append(img,mark,note);root.append(figure);
+      const note=document.createElement('figcaption');const choice=document.createElement('label');choice.className='photo-choice';const ck=document.createElement('input');ck.type='checkbox';ck.className='photo-select';ck.value=String(i);choice.append(ck,document.createTextNode(' Pilih foto #'+(i+1)));note.append(choice);figure.append(img,mark,note);root.append(figure);
     }
   }catch(e){status.textContent='Pemeriksaan gagal: '+e.message;}
   finally{el('photoCheck').disabled=false;}
+};
+
+
+async function imageToY2K(blob){
+  const bitmap=await createImageBitmap(blob);
+  try{
+    const ratio=Math.min(1,1600/Math.max(bitmap.width,bitmap.height));
+    const w=Math.max(1,Math.round(bitmap.width*ratio)),h=Math.max(1,Math.round(bitmap.height*ratio));
+    const cv=document.createElement('canvas');cv.width=w;cv.height=h;
+    const ctx=cv.getContext('2d');
+    ctx.drawImage(bitmap,0,0,w,h);
+    const scale=Math.min(w/800,h/600);
+    const fs=Math.max(12,Math.min(26,Math.round(20*scale)));
+    ctx.font='700 '+fs+'px system-ui,Arial,sans-serif';
+    const label='Y2K PROPERTY',tw=ctx.measureText(label).width;
+    const px=Math.max(10,Math.round(fs*.75)),py=Math.max(6,Math.round(fs*.5));
+    const bw=tw+2*px,bh=fs+2*py;
+    const x=Math.max(10,Math.round(w*.022)),y=Math.max(10,Math.round(h*.022));
+    ctx.fillStyle='rgba(12,12,14,.58)';
+    ctx.beginPath();ctx.roundRect(x,y,bw,bh,bh/2);ctx.fill();
+    ctx.strokeStyle='rgba(233,212,167,.48)';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#e9d4a7';ctx.textBaseline='middle';ctx.fillText(label,x+px,y+bh/2);
+    return await new Promise((resolve,reject)=>cv.toBlob(b=>b?resolve(b):reject(Error('Konversi foto gagal.')),'image/jpeg',.83));
+  }finally{bitmap.close();}
+}
+el('photoSave').onclick=async()=>{
+  const checks=[...document.querySelectorAll('#photoResults .photo-select:checked')];
+  const status=el('photoMessage');
+  if(!checks.length){status.textContent='Pilih minimal satu foto dahulu.';return;}
+  const url=normalizeListingURL(el('photoSource').value.trim());
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session||!agent){status.textContent='Sesi agen habis, silakan login kembali.';return;}
+  const base=url.replace(/\/$/,'');
+  const {data:detail,error:detailError}=await sb.from('y2k_listing_details').select('id,image_urls,source_url').eq('agent_id',agent.id).like('source_url',base+'%').limit(1).maybeSingle();
+  if(detailError||!detail){status.textContent='Listing belum ada di tabel detail milik akun ini. Impor dulu teks Share Brighton untuk listing tersebut.';return;}
+  if(!window.createImageBitmap){status.textContent='Browser ini belum mendukung pemrosesan gambar. Gunakan Chrome versi terbaru.';return;}
+  el('photoSave').disabled=true;el('photoCheck').disabled=true;
+  let saved=0;const failures=[];
+  try{
+    const {data:{user}}=await sb.auth.getUser();
+    if(!user)throw Error('Login ulang diperlukan.');
+    const existing=Array.isArray(detail.image_urls)?detail.image_urls.slice():[];
+    for(const ck of checks){
+      const original=photoCandidates[Number(ck.value)];
+      if(!original)continue;
+      status.textContent='Memproses foto '+(saved+1)+' dari '+checks.length+'...';
+      try{
+        const keyBytes=new TextEncoder().encode(original);
+        const digest=await crypto.subtle.digest('SHA-256',keyBytes);
+        const hex=[...new Uint8Array(digest)].map(n=>n.toString(16).padStart(2,'0')).join('').slice(0,24);
+        const path=user.id+'/'+detail.id+'/'+hex+'.jpg';
+        const publicUrl=sb.storage.from('y2k-listing-photos').getPublicUrl(path).data.publicUrl;
+        if(existing.includes(publicUrl)){saved++;continue;}
+        const res=await fetch('/api/y2k-photo-download',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify({url:original})});
+        if(!res.ok){const err=await res.json().catch(()=>({}));throw Error(err.error||'Gagal mengunduh foto.');}
+        const result=await imageToY2K(await res.blob());
+        if(result.size>5*1024*1024)throw Error('Foto setelah diproses terlalu besar.');
+        const upload=await sb.storage.from('y2k-listing-photos').upload(path,result,{contentType:'image/jpeg',upsert:true});
+        if(upload.error)throw Error(upload.error.message);
+        const updated=[...existing,publicUrl];
+        const {error}=await sb.from('y2k_listing_details').update({image_urls:updated}).eq('id',detail.id).eq('agent_id',agent.id);
+        if(error)throw Error(error.message);
+        existing.push(publicUrl);saved++;
+      }catch(err){failures.push('#'+(Number(ck.value)+1)+': '+err.message);}
+    }
+    status.textContent=saved+' foto diproses/tersimpan ke Y2K. '+(failures.length?'Gagal: '+failures.slice(0,3).join('; '):'Buka halaman detail Y2K untuk melihat galeri.');
+  }catch(err){status.textContent='Gagal menyimpan: '+err.message;}
+  finally{el('photoSave').disabled=false;el('photoCheck').disabled=false;}
 };
 
 start().catch(e=>say(e.message));
