@@ -7,6 +7,9 @@ const sleep=t=>new Promise(r=>setTimeout(r,t));
 const owns=(url)=>{try{const u=new URL(url);return u.protocol==='https:'&&u.hostname==='cdn.brighton.co.id';}catch{return false;}};
 const sourceBase=url=>{const u=tools.normalizeListingURL(url);return u?u.replace(/\/$/,''):null;};
 const rowStatus=(row,msg)=>{row.message.textContent=msg;};
+const currentTarget=()=>Number(el('massLimit').value)||8;
+const photoCount=row=>Array.isArray(row.item.image_urls)?row.item.image_urls.length:0;
+function chooseBelowTarget(){let n=0;for(const row of rows){row.check.checked=photoCount(row)<currentTarget();if(row.check.checked)n++;}status(n+' listing dipilih karena memiliki kurang dari '+currentTarget()+' foto.');}
 function toggleControls(active){
   for(const id of ['massLoad','massAll','massNone','massRun','massLimit'])el(id).disabled=active;
   el('massStop').disabled=!active;
@@ -15,13 +18,13 @@ function render(items){
  const root=el('massList');root.replaceChildren();rows=[];
  for(const item of items){
    const label=document.createElement('label');label.className='mass-row';
-   const check=document.createElement('input');check.type='checkbox';check.className='mass-check';check.checked=!(Array.isArray(item.image_urls)&&item.image_urls.length>0);
+   const check=document.createElement('input');check.type='checkbox';check.className='mass-check';check.checked=(Array.isArray(item.image_urls)?item.image_urls.length:0)<currentTarget();
    const body=document.createElement('span'),heading=document.createElement('strong'),meta=document.createElement('small'),note=document.createElement('small');
    heading.textContent=item.title||'Listing tanpa judul';meta.textContent=(item.image_urls?.length||0)+' foto tersimpan · '+(item.location_text||'Lokasi belum diisi');
    note.textContent='Belum diproses';note.className='mass-result';body.append(heading,meta,note);label.append(check,body);root.append(label);
    rows.push({item,check,message:note});
  }
- status('Ditemukan '+rows.length+' listing. Dipilih otomatis yang belum mempunyai foto.');
+ status('Ditemukan '+rows.length+' listing. Dipilih otomatis yang memiliki kurang dari '+currentTarget()+' foto.');
  for(const id of ['massAll','massNone','massRun'])el(id).disabled=!rows.length;
 }
 el('massLoad').onclick=async()=>{
@@ -34,7 +37,8 @@ el('massLoad').onclick=async()=>{
  }catch(e){status('Gagal memuat daftar: '+e.message);}
  finally{el('massLoad').disabled=false;}
 };
-el('massAll').onclick=()=>{for(const r of rows)r.check.checked=!(Array.isArray(r.item.image_urls)&&r.item.image_urls.length>0);status('Dipilih listing yang belum memiliki foto.');};
+el('massAll').onclick=chooseBelowTarget;
+el('massLimit').onchange=()=>{if(!running&&rows.length)chooseBelowTarget();};
 el('massNone').onclick=()=>{rows.forEach(r=>r.check.checked=false);status('Semua pilihan dibatalkan.');};
 el('massStop').onclick=()=>{stop=true;status('Menghentikan proses setelah foto yang sedang berjalan selesai...');};
 async function saveOne(original,row,session,user,existing){
@@ -70,7 +74,7 @@ async function processListing(row,session,user,limit){
  const existing=Array.isArray(row.item.image_urls)?row.item.image_urls.slice():[];
  let saved=0,duplicates=0,failed=0,firstError='';
  for(const url of candidates){
-   if(stop)break;
+   if(stop||existing.length>=limit)break;
    try{
      const result=await saveOne(url,row,session,user,existing);
      if(result.saved)saved++;if(result.duplicate)duplicates++;
@@ -90,7 +94,7 @@ el('massRun').onclick=async()=>{
  if(!user){status('Login kembali sebelum mengimpor.');return;}
  if(!window.createImageBitmap||!window.crypto?.subtle){status('Browser belum mendukung konversi gambar aman. Coba Chrome terbaru.');return;}
  running=true;stop=false;toggleControls(true);
- const limit=Number(el('massLimit').value)||3;let processed=0,saved=0,failed=0;
+ const limit=currentTarget();let processed=0,saved=0,failed=0;
  try{
    for(const row of queue){
      if(stop)break;
@@ -98,9 +102,9 @@ el('massRun').onclick=async()=>{
      try{
        const outcome=await processListing(row,session,user,limit);
        saved+=outcome.saved;
-       rowStatus(row,outcome.saved+' foto baru · '+outcome.duplicates+' sudah ada'+(outcome.failed?' · '+outcome.failed+' gagal ('+outcome.firstError+')':''));
+       rowStatus(row,photoCount(row)+' foto total · '+outcome.saved+' baru · '+outcome.duplicates+' duplikat'+(outcome.failed?' · '+outcome.failed+' gagal ('+outcome.firstError+')':''));
        if(outcome.failed)failed++;
-       if(!outcome.failed&&!stop)row.check.checked=false;
+       if(!outcome.failed&&!stop)row.check.checked=photoCount(row)<limit;
      }catch(e){failed++;rowStatus(row,'Gagal: '+e.message);}
      processed++;
      status('Batch: '+processed+'/'+queue.length+' listing diperiksa · '+saved+' foto baru · '+failed+' listing bermasalah'+(stop?' · proses dihentikan':''));
