@@ -4,8 +4,7 @@
   const status = { get value() { const c = document.querySelector('input[name="status"]:checked'); return c ? c.value : ''; } };
   let properties = [];
   function card(p) {
-    const a = document.createElement("a"); a.className = "lux-card"; a.href = p.brightonUrl || ("p.html?id=" + encodeURIComponent(p.id));
-    if (p.brightonUrl) { a.target = "_blank"; a.rel = "noopener noreferrer"; }
+    const a = document.createElement("a"); a.className = "lux-card"; a.href = p.brightonUrl ? ("p.html?brighton=" + encodeURIComponent(p.brightonUrl)) : ("p.html?id=" + encodeURIComponent(p.id));
     a.innerHTML = `<div class="lux-photo"><img alt="Foto properti" loading="lazy"><span class="lux-pill"></span><span class="photo-count"></span></div><div class="lux-card-body"><div class="lux-price"></div><h3></h3><div class="lux-location"></div></div>`;
     setImg(a.querySelector('img'), (Array.isArray(p.foto) ? p.foto : [])[0]);
     a.querySelector('.lux-pill').textContent = p.status || 'Properti';
