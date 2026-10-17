@@ -27,38 +27,46 @@ function parseNumber(text) {
   return Number.isFinite(n) && n >= 0 ? n : null;
 }
 function readShareBlocks(value) {
-  // Satu blok dimulai dari link halaman detail Brighton dan mengambil teks sebelum link itu.
   const pattern = /https:\/\/(?:www\.)?brighton\.co\.id\/cari-properti\/view\/[A-Za-z0-9_-]+\/?(?:\?[^\s]*)?/gi;
   const matches = [...value.matchAll(pattern)];
   const byURL = new Map();
-  let start = 0;
-  for(const m of matches) {
+  let cursor = 0;
+  for (const m of matches) {
     const url = normalizeListingURL(m[0]);
-    const preceding = value.slice(start, m.index);
-    start = m.index + m[0].length;
-    if(!url || byURL.has(url)) continue;
-    // Hapus footer bagian yang dibagikan pada blok sebelumnya.
-    const raw = preceding.replace(/^[\s\S]*?(?:https:\/\/(?:www\.)?brighton\.co\.id\/[a-z0-9_-]+\s*)?(?=\S)/i, x=>x);
-    const filtered = raw.split(/\r?\n/).map(x=>x.trim()).filter(Boolean).filter(x=>
-       !/^untuk foto dan keterangan/i.test(x) && !/^hubungi\s*:/i.test(x) &&
-       !/^brighton wisdom$/i.test(x) && !/^amir hamzah/i.test(x) &&
-       !/^https?:\/\//i.test(x) && !/^aryfin khuang/i.test(x)
-    );
-    const title = (filtered.find(x=>!/^((jual|sewa)\s|LT\b|LB\b|KT\b|KM\b|dimensi\b|Rp\b|SHM\b|hadap\b)/i.test(x)) || '').slice(0,240);
-    const transactionLine = filtered.find(x=>/^(jual|sewa)\s/i.test(x)) || '';
-    const type = transactionLine.replace(/^(jual|sewa)\s*/i,'').trim().slice(0,50);
-    const location = (filtered[filtered.indexOf(transactionLine)+1] || '').slice(0,250);
-    const metrics = filtered.find(x=>/\bLT\s*[\d.,]+/i.test(x)) || '';
+    const raw = value.slice(cursor, m.index);
+    cursor = m.index + m[0].length;
+    if (!url || byURL.has(url)) continue;
+    const lines = raw.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+    const start = lines.findIndex((x,i) => i+1 < lines.length && /^(?:JualSewa|Jual|Sewa)\s+/i.test(lines[i+1]));
+    const body = start < 0 ? lines : lines.slice(start);
+    const title = (body[0] || 'Listing Brighton').slice(0,240);
+    const transactionLine = body.find(x => /^(?:JualSewa|Jual|Sewa)\s+/i.test(x)) || '';
+    const propertyType = transactionLine.replace(/^(?:JualSewa|Jual|Sewa)\s+/i,'').trim();
+    const location = body[body.indexOf(transactionLine)+1] || '';
+    const metrics = body.find(x => /\bLT\s*[\d.,]+/i.test(x)) || '';
+    const room = body.find(x => /\bKT\s*\d+/i.test(x)) || '';
+    const prices = body.filter(x => /^Rp\s*[\d.]+/i.test(x)).map(x => parseNumber((x.match(/^Rp\s*([\d.]+)/i)||[])[1]));
     const land = metrics.match(/\bLT\s*([\d.,]+)/i);
     const building = metrics.match(/\bLB\s*([\d.,]+)/i);
-    const price = filtered.join(' ').match(/\bRp\s*([\d.]+)/i);
+    const beds = room.match(/\bKT\s*(\d+)/i);
+    const baths = room.match(/\bKM\s*(\d+)/i);
+    const cert = body.find(x => /^(?:SHM|HGB|SHGB|AJB|Girik|PPJB)(?:\s|$)/i.test(x)) || null;
+    const facing = (body.find(x => /^Hadap\s+/i.test(x))||'').replace(/^Hadap\s+/i,'') || null;
+    const dimensions = (body.find(x => /^Dimensi\s+/i.test(x))||'').replace(/^Dimensi\s+/i,'');
+    const both = /^JualSewa/i.test(transactionLine), rentOnly = /^Sewa/i.test(transactionLine);
     const obj = {
-      url, title: title || 'Listing Brighton', location_text: location,
-      property_type: type,
-      listing_status: /^sewa/i.test(transactionLine)?'sewa':/^jual/i.test(transactionLine)?'jual':'',
-      land_area_m2: land ? parseNumber(land[1]) : null,
-      building_area_m2: building ? parseNumber(building[1]) : null,
-      price_idr: price ? parseNumber(price[1]) : null
+      url, title, location_text: location.slice(0,250),
+      property_type: propertyType.slice(0,80),
+      listing_status: both?'jual_sewa':rentOnly?'sewa':'jual',
+      land_area_m2:land?parseNumber(land[1]):null,
+      building_area_m2:building?parseNumber(building[1]):null,
+      bedrooms:beds?Number(beds[1]):null,
+      bathrooms:baths?Number(baths[1]):null,
+      dimensions: dimensions && dimensions.toLowerCase()!=='null'?dimensions:null,
+      certificate:cert, facing,
+      sale_price_idr: rentOnly?null:prices[0]??null,
+      rent_price_idr: both?prices[1]??null:rentOnly?prices[0]??null:null,
+      share_text: value.slice(Math.max(0,m.index-raw.length),m.index+m[0].length)
     };
     byURL.set(url,obj);
   }
@@ -69,7 +77,7 @@ function showBulk(items){
  for(const item of items){
    const div=document.createElement('div');div.className='bulk-item';
    const name=document.createElement('strong');name.textContent=item.title;
-   const desc=document.createElement('small');desc.textContent=(item.location_text||'Lokasi belum terisi')+' · LT '+(item.land_area_m2??'-')+' m² · '+(item.price_idr!=null?'Rp '+item.price_idr.toLocaleString('id-ID'):'harga belum terisi');
+   const desc=document.createElement('small');desc.textContent=(item.location_text||'Lokasi belum terisi')+' · LT '+(item.land_area_m2??'-')+' m² · '+(item.sale_price_idr!=null?'Jual Rp '+item.sale_price_idr.toLocaleString('id-ID'):item.rent_price_idr!=null?'Sewa Rp '+item.rent_price_idr.toLocaleString('id-ID'):'harga belum terisi');
    const a=document.createElement('a');a.href=item.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent='Lihat sumber Brighton';
    div.append(name,desc,a);root.append(div);
  }
@@ -101,7 +109,7 @@ el('bulkSave').onclick=async()=>{
        agent_id:agent.id,source_url:x.url,title:x.title,location_text:x.location_text,
        property_type:x.property_type||null,listing_status:x.listing_status||null,
        land_area_m2:x.land_area_m2,building_area_m2:x.building_area_m2,
-       sale_price_idr:x.listing_status==='sewa'?null:x.price_idr,
+       sale_price_idr:x.sale_price_idr??x.rent_price_idr,
        rent_price_idr:x.listing_status==='sewa'?x.price_idr:null
      }));
      const {error}=await sb.from('y2k_listing_details').upsert(rows,{onConflict:'agent_id,source_url'});
