@@ -54,6 +54,10 @@ function readShareBlocks(value) {
     const facing = (body.find(x => /^Hadap\s+/i.test(x))||'').replace(/^Hadap\s+/i,'') || null;
     const dimensions = (body.find(x => /^Dimensi\s+/i.test(x))||'').replace(/^Dimensi\s+/i,'');
     const both = /^JualSewa/i.test(transactionLine), rentOnly = /^Sewa/i.test(transactionLine);
+    const footer=value.slice(m.index+m[0].length, matches[matches.indexOf(m)+1]?.index ?? value.length);
+    const contact=(footer.match(/Hubungi\\s*:\\s*\\n?\\s*([^\\n]+?)\\s*-\\s*(0\\d{8,13})/i)||[]);
+    const agentProfile=(footer.match(/https:\\/\\/(?:www\\.)?brighton\\.co\\.id\\/[A-Za-z0-9_-]+\\/?/i)||[])[0]||null;
+    const office=(footer.match(/Brighton\\s+[^\\n]+/i)||[])[0]||null;
     const obj = {
       url, title, location_text: location.slice(0,250),
       property_type: propertyType.slice(0,80),
@@ -66,7 +70,11 @@ function readShareBlocks(value) {
       certificate:cert, facing,
       sale_price_idr: rentOnly?null:prices[0]??null,
       rent_price_idr: both?prices[1]??null:rentOnly?prices[0]??null:null,
-      share_text: value.slice(Math.max(0,m.index-raw.length),m.index+m[0].length)
+      share_text: raw+'\
+'+m[0]+'\
+'+footer,
+      agent_name:contact[1]||null,agent_phone:contact[2]||null,
+      agent_office:office,agent_profile_url:agentProfile
     };
     byURL.set(url,obj);
   }
@@ -109,8 +117,11 @@ el('bulkSave').onclick=async()=>{
        agent_id:agent.id,source_url:x.url,title:x.title,location_text:x.location_text,
        property_type:x.property_type||null,listing_status:x.listing_status||null,
        land_area_m2:x.land_area_m2,building_area_m2:x.building_area_m2,
-       sale_price_idr:x.sale_price_idr??x.rent_price_idr,
-       rent_price_idr:x.listing_status==='sewa'?x.price_idr:null
+       sale_price_idr:x.sale_price_idr,rent_price_idr:x.rent_price_idr,
+       bedrooms:x.bedrooms,bathrooms:x.bathrooms,dimensions:x.dimensions,
+       certificate:x.certificate,facing:x.facing,share_text:x.share_text,
+       agent_name:x.agent_name,agent_phone:x.agent_phone,
+       agent_office:x.agent_office,agent_profile_url:x.agent_profile_url
      }));
      const {error}=await sb.from('y2k_listing_details').upsert(rows,{onConflict:'agent_id,source_url'});
      if(error)throw Error('Indeks tersimpan, tetapi detail gagal: '+error.message);
