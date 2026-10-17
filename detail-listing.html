@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><meta name="theme-color" content="#171717"><title>Detail Properti | Properti Y2K</title><link rel="stylesheet" href="detail-listing.css"></head>
+<body><header class="topbar"><a href="/katalog.html" aria-label="Kembali ke katalog">← Katalog</a><a class="brand" href="/">Y2K <span>PROPERTY</span></a></header>
+<main><p id="state" role="status" class="status">Memuat properti...</p>
+<article id="content" hidden>
+<section class="gallery" aria-label="Galeri foto properti">
+  <div class="slides" id="slides" tabindex="0" aria-label="Geser untuk melihat foto properti"></div>
+  <span class="counter" id="photoCounter" hidden></span>
+  <button id="prevPhoto" class="nav-photo prev" type="button" aria-label="Foto sebelumnya" hidden>‹</button>
+  <button id="nextPhoto" class="nav-photo next" type="button" aria-label="Foto berikutnya" hidden>›</button>
+  <div id="thumbs" class="thumbs" aria-label="Pilihan foto"></div>
+</section>
+<section class="info">
+  <div class="head-meta"><span class="tag" id="tag"></span><span id="promoBadge" class="promo-badge" hidden></span><span id="draft" class="draft" hidden>Pratinjau agen · Belum dipublikasikan</span></div>
+  <h1 id="title"></h1><p id="location" class="location"></p>
+  <div id="prices" class="prices"></div>
+  <div id="quick" class="quick"></div>
+  <h2>Spesifikasi properti</h2><div id="metrics" class="metrics"></div>
+  <section class="secondary"><h2>Deskripsi</h2><p id="description"></p></section>
+  <section class="secondary"><h2>Informasi agen</h2><p id="agent"></p><div class="links"><a id="whatsapp" target="_blank" rel="noopener" hidden>WhatsApp Agen</a><a id="source" target="_blank" rel="noopener noreferrer">Lihat sumber di Brighton ↗</a></div></section>
+</section>
+</article></main>
+<div id="lightbox" class="lightbox" hidden role="dialog" aria-modal="true" aria-label="Foto properti layar penuh"><button id="closeLightbox" type="button" aria-label="Tutup foto">✕</button><img id="fullPhoto" alt="Foto properti diperbesar"><div class="lightbox-actions"><button id="fullPrev" type="button" aria-label="Foto sebelumnya">‹</button><span id="fullCounter"></span><button id="fullNext" type="button" aria-label="Foto berikutnya">›</button></div></div>
+<audio id="bgMusic" src="/assets/luxury-ambient.mp3" preload="metadata" loop></audio>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script><script src="config.js"></script><script src="common.js"></script><script src="detail-listing.js"></script><script src="music.js"></script></body></html>
