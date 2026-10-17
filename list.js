@@ -7,9 +7,11 @@
   let previewStatus = '';
   function card(p) {
     const a = document.createElement("a"); a.className = "lux-card"; a.href = p.y2kSource ? "/detail-listing.html?url=" + encodeURIComponent(p.y2kSource) : "p.html?id=" + encodeURIComponent(p.id);
-    a.innerHTML = `<div class="lux-photo"><img alt="Foto properti" loading="lazy"><span class="lux-pill"></span><span class="photo-count"></span></div><div class="lux-card-body"><div class="lux-price"></div><h3></h3><div class="lux-location"></div></div>`;
+    a.innerHTML = `<div class="lux-photo"><img alt="Foto properti" loading="lazy"><span class="lux-pill"></span><span class="photo-count"></span><span class="promo-ribbon" hidden></span></div><div class="lux-card-body"><div class="lux-price"></div><h3></h3><div class="lux-location"></div></div>`;
     setImg(a.querySelector('img'), (Array.isArray(p.foto) ? p.foto : [])[0]);
     a.querySelector('.lux-pill').textContent = p.status || 'Properti';
+    const promo=a.querySelector('.promo-ribbon');
+    if(p.promoLabel==='harga_menarik'||p.promoLabel==='nego_sampai_jadi'){promo.textContent=p.promoLabel==='harga_menarik'?'✦ Harga Menarik':'Nego Sampai Jadi';promo.hidden=false;}
     a.querySelector('.photo-count').textContent = Array.isArray(p.foto) && p.foto.length > 1 ? p.foto.length+' foto' : '';
     a.querySelector('.lux-location').textContent = (p.lokasi || 'Lokasi tersedia');
     a.querySelector('h3').textContent = p.judul || 'Properti';
@@ -37,7 +39,7 @@
         if(authError||!user){previewStatus='Login dahulu di Dashboard Agen pada domain Preview ini.';properties=[];render();return;}
         const {data:agent,error:agentError}=await sb.from('y2k_agents').select('id').eq('user_id',user.id).maybeSingle();
         if(agentError||!agent){previewStatus='Profil agen tidak ditemukan. Login melalui Dashboard Agen.';properties=[];render();return;}
-        const {data,error}=await sb.from('y2k_listing_details').select('id,agent_id,source_url,title,location_text,listing_status,sale_price_idr,rent_price_idr,image_urls,publish_status').eq('agent_id',agent.id).order('created_at',{ascending:false}).limit(200);
+        const {data,error}=await sb.from('y2k_listing_details').select('id,agent_id,source_url,title,location_text,listing_status,sale_price_idr,rent_price_idr,image_urls,publish_status,promo_label').eq('agent_id',agent.id).order('created_at',{ascending:false}).limit(200);
         if(error)throw error;
         // Data lama di indeks kadang memiliki harga ketika kolom harga detail masih kosong.
         // Cocokkan berdasarkan URL listing milik agen; jangan mengarang harga.
@@ -55,7 +57,7 @@
           id:d.id,judul:d.title||'Properti Y2K',lokasi:d.location_text||'Lokasi belum diisi',
           status:d.listing_status==='jual_sewa'?'Dijual & Disewa':d.listing_status==='sewa'?'Disewa':'Dijual',
           harga:(Number(d.sale_price_idr)>0?Number(d.sale_price_idr):Number(d.rent_price_idr)>0?Number(d.rent_price_idr):indexPrices.get(d.source_url)??null),
-          isRent:d.listing_status==='sewa',foto:d.image_urls,y2kSource:d.source_url
+          isRent:d.listing_status==='sewa',foto:d.image_urls,y2kSource:d.source_url,promoLabel:d.promo_label
         }));
         previewStatus='Belum ada listing yang memiliki foto. Impor foto di Dashboard Agen.';
         const heading=document.querySelector('.section-head h2');
