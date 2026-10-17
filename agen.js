@@ -130,5 +130,29 @@ el('bulkSave').onclick=async()=>{
  }catch(err){el('bulkInfo').textContent=`Tersimpan/diproses ${saved}; proses berhenti: ${err.message}`;}
  finally {el('bulkSave').disabled=false;}
 };
+
+el('photoCheck').onclick=async()=>{
+  const input=el('photoSource'),status=el('photoMessage'),root=el('photoResults');
+  root.replaceChildren();
+  const url=normalizeListingURL(input.value.trim());
+  if(!url){status.textContent='Gunakan link detail Brighton yang valid.';return;}
+  if(!agent){status.textContent='Login dan simpan profil agen dahulu.';return;}
+  el('photoCheck').disabled=true;status.textContent='Memeriksa galeri foto Brighton...';
+  try{
+    const res=await fetch('/api/brighton-import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url})});
+    const info=await res.json();
+    if(!res.ok)throw Error(info.error||'Tidak dapat memeriksa galeri.');
+    const photos=Array.isArray(info.foto)?info.foto.filter(u=>{try{const p=new URL(u);return p.protocol==='https:'&&p.hostname==='cdn.brighton.co.id';}catch{return false;}}):[];
+    status.textContent=photos.length?photos.length+' foto kandidat ditemukan. Periksa kesesuaiannya dengan listing asli. Foto belum disimpan.':'Belum ada foto galeri yang dapat dikenali secara otomatis. Kamu tetap bisa menambahkan foto sendiri.';
+    for(const [i,u] of photos.entries()){
+      const figure=document.createElement('figure');figure.className='photo-preview';
+      const img=document.createElement('img');img.src=u;img.alt='Kandidat foto properti '+(i+1);img.loading='lazy';img.referrerPolicy='no-referrer';
+      const mark=document.createElement('span');mark.textContent='Y2K PROPERTY';mark.className='photo-brand-preview';
+      const note=document.createElement('figcaption');note.textContent='Pratinjau #'+(i+1)+' · sumber Brighton';figure.append(img,mark,note);root.append(figure);
+    }
+  }catch(e){status.textContent='Pemeriksaan gagal: '+e.message;}
+  finally{el('photoCheck').disabled=false;}
+};
+
 start().catch(e=>say(e.message));
 })();
