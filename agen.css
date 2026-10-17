@@ -19,3 +19,13 @@ textarea{display:block;width:100%;border:1px solid #cbd7d1;border-radius:9px;pad
 @media(max-width:600px){#massPhotoPanel .actions{align-items:stretch}#massPhotoPanel .actions button{flex:1 1 155px}}
 
 .y2k-preview-link{display:inline-block;background:#191919;color:#e9d4a7;text-decoration:none;padding:13px 18px;border-radius:10px;font-weight:750}
+
+/* Label promosi per listing */
+.promo-rows{max-height:520px;overflow:auto;margin-top:10px}
+.promo-row{border-top:1px solid #e9e6de;padding:12px 0;display:grid;grid-template-columns:minmax(0,1fr) minmax(170px,230px);gap:12px;align-items:center}
+.promo-row strong{display:block;font-size:13px;line-height:1.4}.promo-row small{display:block;margin-top:4px}
+.promo-action{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.promo-action select{font:inherit;border:1px solid #b5a384;border-radius:8px;padding:9px;background:#fff;max-width:100%;flex:1 1 130px;min-width:0}
+.promo-action button{padding:9px 12px;background:#191919;color:#f0d5a6}
+.promo-feedback{flex-basis:100%;color:#715830}
+@media(max-width:540px){.promo-row{grid-template-columns:1fr;gap:6px}.promo-action{flex-wrap:nowrap}.promo-feedback{flex-basis:auto}}
