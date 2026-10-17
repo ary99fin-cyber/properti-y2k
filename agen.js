@@ -6,7 +6,7 @@ const escapeHTML = v => String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':
 function validProfile(v){try{const u=new URL(v);return u.protocol==='https:' && ['www.brighton.co.id','brighton.co.id'].includes(u.hostname) && /^\/[A-Za-z0-9_-]+\/?$/.test(u.pathname) && !u.search && !u.hash}catch{return false}}
 async function start(){ const {data:{session}}=await sb.auth.getSession();el('loginPanel').hidden=!!session;el('app').hidden=!session;if(session)await load();}
 async function load(){const {data,error}=await sb.from('y2k_agents').select('*').maybeSingle();if(error)return say('Database agen belum siap: '+error.message);agent=data;if(agent){el('name').value=agent.display_name;el('wa').value=agent.whatsapp||'';el('profile').value=agent.brighton_profile_url;el('status').textContent='Status sinkronisasi: '+agent.sync_status+(agent.last_sync_at?' · '+new Date(agent.last_sync_at).toLocaleString('id-ID'):'');}await list();}
-async function list(){const root=el('results');root.replaceChildren();if(!agent){el('counter').textContent='(0)';root.textContent='Simpan profil agen terlebih dahulu.';return;}const {data,error}=await sb.from('y2k_listing_index').select('url,title,location_text,land_area_m2').eq('agent_id',agent.id).order('created_at',{ascending:false}).limit(100);if(error){say(error.message);return;}el('counter').textContent=`(${data.length}${data.length===100?'+':''})`;if(!data.length){root.textContent='Belum ada link listing yang ditemukan.';return;}for(const item of data){const row=document.createElement('div');row.className='item';const a=document.createElement('a');a.href=item.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=item.title||item.url;row.append(a);const note=document.createElement('small');note.textContent=' · '+(item.location_text||'metadata belum tersedia');row.append(note);root.append(row);}}
+async function list(){const root=el('results');root.replaceChildren();if(!agent){el('counter').textContent='(0)';root.textContent='Simpan profil agen terlebih dahulu.';return;}const {data,error}=await sb.from('y2k_listing_index').select('url,title,location_text,land_area_m2').eq('agent_id',agent.id).order('created_at',{ascending:false}).limit(100);if(error){say(error.message);return;}el('counter').textContent=`(${data.length}${data.length===100?'+':''})`;if(!data.length){root.textContent='Belum ada link listing yang ditemukan.';return;}for(const item of data){const row=document.createElement('div');row.className='item';const a=document.createElement('a');a.href='/detail-listing.html?url='+encodeURIComponent(item.url);a.target='_blank';a.rel='noopener noreferrer';a.textContent=item.title||item.url;row.append(a);const note=document.createElement('small');note.textContent=' · '+(item.location_text||'metadata belum tersedia');row.append(note);root.append(row);}}
 el('login').addEventListener('submit',async e=>{e.preventDefault();say('Memeriksa akun...');const {error}=await sb.auth.signInWithPassword({email:el('email').value,password:el('password').value});if(error)return say(error.message);say('');await start();});
 el('logout').onclick=async()=>{await sb.auth.signOut();agent=null;await start();};
 el('profileForm').addEventListener('submit',async e=>{e.preventDefault();const url=el('profile').value.trim();if(!validProfile(url))return say('URL harus berupa halaman profil Brighton, contoh https://www.brighton.co.id/aryfin');const {data:{user}}=await sb.auth.getUser();if(!user)return say('Silakan login lagi.');const item={user_id:user.id,display_name:el('name').value.trim(),whatsapp:el('wa').value.trim()||null,brighton_profile_url:url};const {error}=await sb.from('y2k_agents').upsert(item,{onConflict:'user_id'});if(error)return say('Gagal simpan: '+error.message);say('Profil tersimpan.');await load();});
@@ -93,7 +93,23 @@ el('bulkSave').onclick=async()=>{
      if(error) throw Error(error.message);
      saved+=batch.length;
    }
-   el('bulkInfo').textContent=`Berhasil memproses ${saved} link unik. Link yang sama untuk agen ini diperbarui, bukan digandakan. Status aktif/co-listing belum diverifikasi otomatis.`;
+   // Perbarui draft detail hanya dengan metadata yang ada, tanpa mengubah status publikasi.
+   // Data lama tidak dihapus; sumber Brighton tetap dicatat.
+   let detailSaved=0;
+   for(let i=0;i<bulkItems.length;i+=20){
+     const rows=bulkItems.slice(i,i+20).map(x=>({
+       agent_id:agent.id,source_url:x.url,title:x.title,location_text:x.location_text,
+       property_type:x.property_type||null,listing_status:x.listing_status||null,
+       land_area_m2:x.land_area_m2,building_area_m2:x.building_area_m2,
+       sale_price_idr:x.listing_status==='sewa'?null:x.price_idr,
+       rent_price_idr:x.listing_status==='sewa'?x.price_idr:null
+     }));
+     const {error}=await sb.from('y2k_listing_details').upsert(rows,{onConflict:'agent_id,source_url'});
+     if(error)throw Error('Indeks tersimpan, tetapi detail gagal: '+error.message);
+     detailSaved+=rows.length;
+   }
+   el('bulkInfo').textContent=`Detail tersimpan ${detailSaved}. Periksa dahulu sebelum publikasi. `+
+ Link yang sama untuk agen ini diperbarui, bukan digandakan. Status aktif/co-listing belum diverifikasi otomatis.`;
    await list();
  }catch(err){el('bulkInfo').textContent=`Tersimpan/diproses ${saved}; proses berhenti: ${err.message}`;}
  finally {el('bulkSave').disabled=false;}
