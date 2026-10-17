@@ -225,5 +225,6 @@ el('photoSave').onclick=async()=>{
   finally{el('photoSave').disabled=false;el('photoCheck').disabled=false;}
 };
 
+window.Y2KPhotoTools={getAgent:()=>agent,normalizeListingURL,imageToY2K};
 start().catch(e=>say(e.message));
 })();
