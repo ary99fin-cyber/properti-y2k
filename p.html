@@ -3,20 +3,21 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Detail Properti</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="interior.css">
+<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="interior.css"><link rel="stylesheet" href="detail-premium.css">
 </head><body>
 <main class="wrap" id="app">
   <a class="link back" href="index.html">‹ Semua properti</a>
-  <section class="gallery">
+  <section class="gallery"><div class="gallery-label">PROPERTI Y2K · GALERI</div>
     <button class="main" id="main" aria-label="Perbesar foto"><img id="mainImg" alt=""><span class="cap" id="cap"></span><span class="count" id="count"></span></button>
     <div class="thumbs" id="thumbs"></div>
   </section>
-  <section class="info">
+  <section class="info"><div class="detail-kicker">KOLEKSI PROPERTI PILIHAN</div>
     <p class="badge" id="status"></p><h1 id="judul">Memuat...</h1>
     <p class="loc" id="lokasi"></p><p class="price" id="harga"></p>
     <a class="btn brighton-detail" id="brightonBtn" target="_blank" rel="noopener noreferrer" hidden>Lihat listing asli di Brighton ↗</a>
-    <a class="btn" id="waBtn" target="_blank" rel="noopener">Hubungi via WhatsApp</a>
+    <a class="btn" id="waBtn" target="_blank" rel="noopener">Konsultasi WhatsApp ↗</a><button id="kprJump" class="btn btn-outline" type="button" hidden>Simulasi KPR ↓</button><p class="price-note">Harga & ketersediaan harap konfirmasi kembali ke agen.</p>
   </section>
+  <section class="block" id="kprPanel" hidden><div class="kpr-title"><div><span class="detail-kicker">PERENCANAAN PEMBELIAN</span><h2>Simulasi KPR</h2></div><span class="kpr-note">Estimasi</span></div><p class="kpr-disclaimer">Ilustrasi angsuran anuitas dengan bunga tetap asumsi, bukan penawaran atau persetujuan bank. Belum termasuk biaya provisi, notaris, asuransi, dan pajak.</p><div class="kpr-fields"><label>Harga properti<input id="kprPrice" type="text" readonly></label><label>Uang muka / DP (%)<input id="kprDp" type="number" min="0" max="99" step="1" value="20"></label><label>Tenor (tahun)<select id="kprYears"><option>5</option><option>10</option><option selected>15</option><option>20</option><option>25</option><option>30</option></select></label><label>Bunga asumsi per tahun (%)<input id="kprRate" type="number" min="0" max="50" step="0.1" value="8"></label></div><div class="kpr-result"><small>Perkiraan cicilan per bulan</small><strong id="kprMonthly">—</strong><span id="kprSummary"></span></div><p class="kpr-disclaimer">Tidak semua properti atau nilai pinjaman memenuhi syarat KPR. Bank akan memeriksa kemampuan bayar, riwayat kredit, dokumen, dan agunan.</p></section>
   <section class="block"><h2>Spesifikasi</h2><dl class="specs" id="specs"></dl></section>
   <section class="block"><h2>Deskripsi</h2><p id="deskripsi" style="white-space:pre-line"></p></section>
   <section class="block"><h2>Fasilitas</h2><ul class="chips" id="fasilitas"></ul></section>
@@ -30,5 +31,5 @@
   <button class="nav next" id="lbNext" aria-label="Berikutnya">›</button>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="config.js"></script><script src="common.js"></script><script src="detail.js"></script>
+<script src="config.js"></script><script src="common.js"></script><script src="detail.js"></script><script src="detail-kpr.js"></script>
 </body></html>
