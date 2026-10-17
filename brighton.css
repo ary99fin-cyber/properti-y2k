@@ -168,3 +168,9 @@ body.y2k-dark-preview #y2kBotLauncher{background:#c3a16c;color:#19140e}
 body.y2k-dark-preview .music-widget{background:#211e19;color:#f4e5ca;border-color:#665137}
 body.y2k-dark-preview .music-desc small{color:#c5b39b}
 body.y2k-dark-preview .music-widget #musicToggle,body.y2k-dark-preview .music-reopen{background:#b99556;color:#1b150b}
+
+/* Visible music playback controls; never hide browser autoplay errors. */
+.y2k-music-panel{position:fixed;left:12px;bottom:14px;z-index:29;display:flex;align-items:center;gap:8px;max-width:calc(100vw - 105px);padding:6px 10px 6px 6px;border:1px solid #b99556;border-radius:999px;background:#1b1814ee;box-shadow:0 3px 18px #0006}
+.y2k-music-button{border:0;background:#bd995e;color:#1a140e;border-radius:999px;font-size:11px;font-weight:800;padding:9px 12px;white-space:nowrap;cursor:pointer}
+.y2k-music-message{color:#efd8b1;font-size:10px;line-height:1.25;max-width:140px}
+@media(max-width:500px){.y2k-music-panel{bottom:10px;max-width:180px}.y2k-music-message{display:none}}
