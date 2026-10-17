@@ -94,6 +94,15 @@
           harga:(Number(d.sale_price_idr)>0?Number(d.sale_price_idr):Number(d.rent_price_idr)>0?Number(d.rent_price_idr):indexPrices.get(d.source_url)??null),
           isRent:d.listing_status==='sewa',foto:d.image_urls,y2kSource:d.source_url,promoLabel:d.promo_label
         }));
+        // Gunakan foto listing sebagai banner pratinjau jika tersedia.
+        // Data tetap milik agen dan tidak mengubah publikasi atau file Storage.
+        const heroPhoto=properties.flatMap(p=>p.foto||[]).find(u=>{
+          try{return new URL(u).protocol==='https:';}catch{return false;}
+        });
+        if(heroPhoto){
+          const hero=document.querySelector('.hero');
+          if(hero)hero.style.backgroundImage='linear-gradient(95deg,rgba(10,9,9,.96) 0%,rgba(15,13,12,.89) 54%,rgba(18,15,11,.67) 100%),url('+JSON.stringify(heroPhoto)+')';
+        }
         previewStatus='Belum ada listing yang memiliki foto. Impor foto di Dashboard Agen.';
         const heading=document.querySelector('.section-head h2');
         if(heading)heading.textContent='Pratinjau Properti Y2K';
