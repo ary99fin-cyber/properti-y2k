@@ -46,6 +46,7 @@
   $("judul").textContent = P.judul; $("lokasi").textContent = P.lokasi || ""; $("status").textContent = P.status || "";
   $("harga").textContent = rupiah(P.harga); $("deskripsi").textContent = P.deskripsi || "";
   $("agen").textContent = "Dipasarkan oleh " + CONFIG.AGEN;
+  window.dispatchEvent(new CustomEvent("y2k-property-ready", { detail: { price: Number(P.harga || 0), status: P.status || "" } }));
   const wa = "https://wa.me/" + CONFIG.WA + "?text=" + encodeURIComponent("Halo, saya tertarik dengan properti: " + P.judul);
   $("waBtn").href = wa; $("waBtn2").href = wa;
   if (P.brighton_url) {
