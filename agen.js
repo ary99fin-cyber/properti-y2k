@@ -55,9 +55,9 @@ function readShareBlocks(value) {
     const dimensions = (body.find(x => /^Dimensi\s+/i.test(x))||'').replace(/^Dimensi\s+/i,'');
     const both = /^JualSewa/i.test(transactionLine), rentOnly = /^Sewa/i.test(transactionLine);
     const footer=value.slice(m.index+m[0].length, matches[matches.indexOf(m)+1]?.index ?? value.length);
-    const contact=(footer.match(/Hubungi\\s*:\\s*\\n?\\s*([^\\n]+?)\\s*-\\s*(0\\d{8,13})/i)||[]);
-    const agentProfile=(footer.match(/https:\\/\\/(?:www\\.)?brighton\\.co\\.id\\/[A-Za-z0-9_-]+\\/?/i)||[])[0]||null;
-    const office=(footer.match(/Brighton\\s+[^\\n]+/i)||[])[0]||null;
+    const contact=(footer.match(/Hubungi\s*:\s*\n?\s*([^\n]+?)\s+-\s+(0\d{8,13})/i)||[]);
+    const agentProfile=(footer.match(/https:\/\/(?:www\.)?brighton\.co\.id\/[A-Za-z0-9_-]+\/?/i)||[])[0]||null;
+    const office=(footer.match(/Brighton\s+[^\n]+/i)||[])[0]||null;
     const obj = {
       url, title, location_text: location.slice(0,250),
       property_type: propertyType.slice(0,80),
@@ -70,9 +70,7 @@ function readShareBlocks(value) {
       certificate:cert, facing,
       sale_price_idr: rentOnly?null:prices[0]??null,
       rent_price_idr: both?prices[1]??null:rentOnly?prices[0]??null:null,
-      share_text: raw+'\
-'+m[0]+'\
-'+footer,
+      share_text: raw+'\n'+m[0]+'\n'+footer,
       agent_name:contact[1]||null,agent_phone:contact[2]||null,
       agent_office:office,agent_profile_url:agentProfile
     };
