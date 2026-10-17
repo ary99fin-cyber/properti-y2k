@@ -57,13 +57,32 @@
       }
     } catch (_) { /* Keep hidden for invalid links. */ }
   }
-  parseSpek(P.spesifikasi).forEach(s => {
+  const specs = parseSpek(P.spesifikasi);
+  if (!specs.length) $("specPanel").hidden = true;
+  if (!String(P.deskripsi || "").trim()) $("descPanel").hidden = true;
+  if (!String(P.fasilitas || "").trim()) $("facPanel").hidden = true;
+  if (String(P.lokasi || "").trim()) {
+    $("areaPanel").hidden = false;
+    $("areaText").textContent = P.lokasi;
+    const loc = encodeURIComponent(P.lokasi);
+    $("areaMaps").href = "https://www.google.com/maps/search/?api=1&query=" + loc;
+    $("areaFacilities").href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent("sekolah rumah sakit supermarket dekat " + P.lokasi);
+  }
+  specs.forEach(s => {
     const d = document.createElement("div"); d.innerHTML = "<dt></dt><dd></dd>";
     d.children[0].textContent = s.label; d.children[1].textContent = s.nilai; $("specs").appendChild(d);
   });
   (P.fasilitas || "").split(",").map(x => x.trim()).filter(Boolean).forEach(f => {
     const li = document.createElement("li"); li.textContent = f; $("fasilitas").appendChild(li);
   });
+  let startX = null;
+  $("main").addEventListener("touchstart", e => { startX = e.changedTouches[0]?.screenX ?? null; }, {passive:true});
+  $("main").addEventListener("touchend", e => {
+    if(startX === null) return;
+    const dx=(e.changedTouches[0]?.screenX ?? startX)-startX;
+    if(Math.abs(dx)>45){ show(idx+(dx<0?1:-1)); $("main").dataset.swiped="1"; }
+    startX=null;
+  }, {passive:true});
   fotos.forEach((f, i) => {
     const b = document.createElement("button"); b.setAttribute("aria-label", f.ket);
     const im = document.createElement("img"); im.alt = f.ket; im.loading = "lazy"; setImg(im, f.file);
@@ -75,7 +94,7 @@
     [...$("thumbs").children].forEach((t, k) => t.classList.toggle("on", k === idx));
     if (!$("lb").hidden) setImg($("lbImg"), f.file);
   }
-  $("main").onclick = () => { $("lb").hidden = false; show(idx); };
+  $("main").onclick = () => { if ($("main").dataset.swiped) { delete $("main").dataset.swiped; return; } $("lb").hidden = false; show(idx); };
   $("lbClose").onclick = () => $("lb").hidden = true;
   $("lbPrev").onclick = () => show(idx - 1); $("lbNext").onclick = () => show(idx + 1);
   document.addEventListener("keydown", e => {

@@ -7,23 +7,24 @@
 </head><body>
 <main class="wrap" id="app">
   <a class="link back" href="index.html">‹ Semua properti</a>
-  <section class="gallery"><div class="gallery-label">PROPERTI Y2K · GALERI</div>
+  <section class="gallery"><div class="gallery-label">GALERI FOTO</div>
     <button class="main" id="main" aria-label="Perbesar foto"><img id="mainImg" alt=""><span class="cap" id="cap"></span><span class="count" id="count"></span></button>
     <div class="thumbs" id="thumbs"></div>
   </section>
-  <section class="info"><div class="detail-kicker">KOLEKSI PROPERTI PILIHAN</div>
+  <section class="info"><div class="detail-kicker">DETAIL PROPERTI</div>
     <p class="badge" id="status"></p><h1 id="judul">Memuat...</h1>
     <p class="loc" id="lokasi"></p><p class="price" id="harga"></p>
     <a class="btn brighton-detail" id="brightonBtn" target="_blank" rel="noopener noreferrer" hidden>Lihat listing asli di Brighton ↗</a>
-    <a class="btn" id="waBtn" target="_blank" rel="noopener">Konsultasi WhatsApp ↗</a><button id="kprJump" class="btn btn-outline" type="button" hidden>Simulasi KPR ↓</button><p class="price-note">Harga & ketersediaan harap konfirmasi kembali ke agen.</p>
+    <a class="btn" id="waBtn" target="_blank" rel="noopener">WhatsApp Agen ↗</a><button id="kprJump" class="btn btn-outline" type="button" hidden>Simulasi KPR ↓</button><p class="price-note">Harga dapat berubah · Konfirmasi ke agen</p>
   </section>
   <section class="block" id="kprPanel" hidden><div class="kpr-title"><div><span class="detail-kicker">PERENCANAAN PEMBELIAN</span><h2>Simulasi KPR</h2></div><span class="kpr-note">Estimasi</span></div><p class="kpr-disclaimer">Ilustrasi angsuran anuitas dengan bunga tetap asumsi, bukan penawaran atau persetujuan bank. Belum termasuk biaya provisi, notaris, asuransi, dan pajak.</p><div class="kpr-fields"><label>Harga properti<input id="kprPrice" type="text" readonly></label><label>Uang muka / DP (%)<input id="kprDp" type="number" min="0" max="99" step="1" value="20"></label><label>Tenor (tahun)<select id="kprYears"><option>5</option><option>10</option><option selected>15</option><option>20</option><option>25</option><option>30</option></select></label><label>Bunga asumsi per tahun (%)<input id="kprRate" type="number" min="0" max="50" step="0.1" value="8"></label></div><div class="kpr-result"><small>Perkiraan cicilan per bulan</small><strong id="kprMonthly">—</strong><span id="kprSummary"></span></div><p class="kpr-disclaimer">Tidak semua properti atau nilai pinjaman memenuhi syarat KPR. Bank akan memeriksa kemampuan bayar, riwayat kredit, dokumen, dan agunan.</p></section>
-  <section class="block"><h2>Spesifikasi</h2><dl class="specs" id="specs"></dl></section>
-  <section class="block"><h2>Deskripsi</h2><p id="deskripsi" style="white-space:pre-line"></p></section>
-  <section class="block"><h2>Fasilitas</h2><ul class="chips" id="fasilitas"></ul></section>
+  <section class="block nearby" id="areaPanel" hidden><h2>Lokasi & area sekitar</h2><p id="areaText"></p><div class="area-actions"><a id="areaMaps" class="area-link" target="_blank" rel="noopener noreferrer">Lihat area di Google Maps ↗</a><a id="areaFacilities" class="area-link" target="_blank" rel="noopener noreferrer">Cari fasilitas terdekat ↗</a></div><small>Hasil pencarian peta perlu diverifikasi. Jarak dan fasilitas sekitar tidak ditentukan otomatis tanpa titik lokasi pasti.</small></section>
+  <section class="block" id="specPanel"><h2>Spesifikasi</h2><dl class="specs" id="specs"></dl></section>
+  <section class="block" id="descPanel"><h2>Deskripsi</h2><p id="deskripsi" style="white-space:pre-line"></p></section>
+  <section class="block" id="facPanel"><h2>Fasilitas</h2><ul class="chips" id="fasilitas"></ul></section>
   <p class="foot" id="agen"></p>
 </main>
-<div class="stickyBar"><a class="btn" id="waBtn2" target="_blank" rel="noopener">Hubungi via WhatsApp</a></div>
+<div class="stickyBar"><a class="btn" id="waBtn2" target="_blank" rel="noopener" aria-label="Chat WhatsApp dengan agen">✆ Chat Agen</a><a class="btn mini-back" href="index.html#properti">⌂ Listing</a></div>
 <div class="lightbox" id="lb" hidden>
   <button class="x" id="lbClose" aria-label="Tutup">×</button>
   <button class="nav prev" id="lbPrev" aria-label="Sebelumnya">‹</button>

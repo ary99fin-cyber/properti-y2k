@@ -3,7 +3,7 @@
 const BOT_WA_NUMBER = ''; // JANGAN isi nomor pribadi bila belum ingin langsung menerima chat.
 const $=id=>document.getElementById(id);
 const state={step:'purpose',purpose:'',role:'',needs:'',kind:'',areaMin:null,areaMax:null,budget:null,timing:'',document:'',consent:false,saved:false,leadId:null};
-const launcher=document.createElement('button');launcher.id='y2kBotLauncher';launcher.type='button';launcher.textContent='💬 Tanya Properti';launcher.setAttribute('aria-label','Buka Asisten Properti');
+const launcher=document.createElement('button');launcher.id='y2kBotLauncher';launcher.type='button';launcher.textContent='💬 Live Chat';launcher.setAttribute('aria-label','Buka Asisten Properti');
 const box=document.createElement('section');box.id='y2kBotBox';box.setAttribute('aria-label','Asisten Properti Y2K');box.innerHTML='<div id="y2kBotHeader"><strong>🏠 Asisten Properti Y2K</strong><button type="button" id="y2kBotClose" aria-label="Tutup chat">×</button></div><div id="y2kBotMessages" aria-live="polite"></div><div id="y2kBotControls"></div>';document.body.append(launcher,box);
 const transcript=$('y2kBotMessages'),controls=$('y2kBotControls');
 function say(text,me=false){const el=document.createElement('div');el.className='message'+(me?' me':'');el.textContent=text;transcript.append(el);transcript.scrollTop=transcript.scrollHeight;}
