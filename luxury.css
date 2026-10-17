@@ -13,3 +13,13 @@ h1,h2,h3,.brand{font-family:Manrope,sans-serif}.shell{width:min(1160px,calc(100%
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.lux-card{transition:none}}
 
 .y2k-preview-banner{background:#1c1b19;color:#ecd6a7;padding:13px 16px;border-radius:10px;font-size:12px;font-weight:750;letter-spacing:.025em;margin:0 0 24px}
+
+/* Y2K promotional labels — preview storefront */
+.lux-card .lux-pill{background:#171717;color:#f1d5a0;border:1px solid #b99556;border-radius:8px;padding:5px 10px;font-size:10px;letter-spacing:.04em}
+.lux-card .promo-ribbon{position:absolute;left:12px;bottom:12px;max-width:calc(100% - 98px);background:rgba(18,17,17,.88);border:1px solid #c4a46f;color:#f6d8a5;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:800;box-shadow:0 3px 9px #0004}
+.lux-card .promo-ribbon[hidden]{display:none}
+.lux-card .photo-count{background:#171717d9;color:#e7cf9d;border:1px solid #c4a46f}
+.lux-card .lux-card-body{padding:13px 15px 16px}
+.lux-card .lux-price{font-size:clamp(17px,3.2vw,20px)}
+.lux-card h3{font-size:14px;line-height:1.38;min-height:0;margin:6px 0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.lux-card .lux-location{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
