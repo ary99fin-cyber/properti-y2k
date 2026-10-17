@@ -17,3 +17,5 @@ textarea{display:block;width:100%;border:1px solid #cbd7d1;border-radius:9px;pad
 .mass-row .mass-result{color:#66512c}
 #massStatus{font-weight:600;color:#5c584c;font-size:13px}
 @media(max-width:600px){#massPhotoPanel .actions{align-items:stretch}#massPhotoPanel .actions button{flex:1 1 155px}}
+
+.y2k-preview-link{display:inline-block;background:#191919;color:#e9d4a7;text-decoration:none;padding:13px 18px;border-radius:10px;font-weight:750}
