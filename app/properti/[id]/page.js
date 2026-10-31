@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { sb, rp, fotos, specs, getSettings } from '@/lib/supabase';
+import { rp, fotos, specs, getSettings } from '@/lib/supabase';
+import { oneProp } from '@/lib/data';
 import Gallery from '@/components/Gallery';
 import KprCalculator from '@/components/KprCalculator';
 export const dynamic='force-dynamic';
-const get=async id=>(await sb.from('properties').select('*').eq('id',id).single()).data;
+const get=oneProp;
 export async function generateMetadata({params}){const p=await get(params.id);return p?{title:p.judul,openGraph:{title:p.judul,description:`${rp(p.harga)} · ${p.lokasi}`,images:fotos(p).slice(0,1)}}:{}}
 export default async function Detail({params}){
   const p=await get(params.id); if(!p) notFound(); const s=await getSettings();
@@ -17,4 +18,5 @@ export default async function Detail({params}){
       {p.deskripsi&&<p className="whitespace-pre-line leading-relaxed text-stone-300">{p.deskripsi}</p>}
       {!!fas.length&&<div className="flex flex-wrap gap-2">{fas.map(f=><span key={f} className="rounded-full border border-gold/40 px-3 py-1 text-xs text-gold">{f}</span>)}</div>}</div>
       <aside className="space-y-4 lg:sticky lg:top-6 lg:self-start"><KprCalculator harga={Number(p.harga)} cfg={s} judul={p.judul}/>
-        <a className="btn block text-center" href={`https://wa.me/${s.wa}?text=${encodeURIComponent('Halo, saya tertarik dengan '+p.judul)}`}>Hubungi {s.agen}</a></aside></div></main>}
+        <a className="btn block text-center" href={`https://wa.me/${s.wa}?text=${encodeURIComponent('Halo, saya tertarik dengan '+p.judul)}`}>Hubungi {s.agen}</a>
+        {p.brighton_url&&<a className="btn2 block text-center" href={p.brighton_url} target="_blank" rel="noopener noreferrer">Lihat listing asli</a>}</aside></div></main>}

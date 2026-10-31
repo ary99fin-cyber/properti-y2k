@@ -1,12 +1,10 @@
 import Link from 'next/link';
-import { sb, rp, fotos, specs, getSettings } from '@/lib/supabase';
+import { rp, fotos, specs, getSettings } from '@/lib/supabase';
+import { allProps, filterProps } from '@/lib/data';
 export const dynamic='force-dynamic';
 export default async function Home({searchParams}){
   const {q='',status='',max=''}=searchParams, s=await getSettings();
-  let qb=sb.from('properties').select('id,judul,lokasi,status,harga,foto,spesifikasi').order('created_at',{ascending:false});
-  if(status) qb=qb.eq('status',status); if(max) qb=qb.lte('harga',Number(max));
-  const clean=q.replace(/[,()%]/g,' ').trim(); if(clean) qb=qb.or(`judul.ilike.%${clean}%,lokasi.ilike.%${clean}%`);
-  const {data}=await qb, list=data||[];
+  const list=filterProps(await allProps(),{q,status,max});
   return <main>
     <header className="border-b border-line"><div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
       <span className="font-serif text-2xl tracking-wide text-gold">Properti Y2K</span><a className="text-sm text-stone-400 hover:text-gold" href={`https://wa.me/${s.wa}`}>Hubungi {s.agen}</a></div></header>

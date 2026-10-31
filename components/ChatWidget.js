@@ -3,13 +3,13 @@ import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { sb, rp } from '@/lib/supabase';
+import { allProps, filterProps } from '@/lib/data';
 export default function ChatWidget({wa}){
   const path=usePathname(),[open,setOpen]=useState(false),[step,setStep]=useState(0),[a,setA]=useState({}),[res,setRes]=useState(null);
   if(path.startsWith('/admin')) return null;
   const Q=[{t:'Halo! Anda mencari properti untuk…',o:['Dijual','Disewa'],k:'status'},{t:'Budget maksimal?',o:['500 juta','1 miliar','2 miliar','5 miliar'],k:'budget',v:[5e8,1e9,2e9,5e9]},{t:'Lokasi yang diinginkan? (ketik, mis. Medan Johor)',k:'lokasi'}];
   const next=async(k,val)=>{const n={...a,[k]:val};setA(n);if(step<2) return setStep(step+1);
-    let q=sb.from('properties').select('id,judul,harga,lokasi').eq('status',n.status).lte('harga',n.budget).limit(3); const w=String(n.lokasi||'').replace(/[,()%]/g,' ').trim(); if(w) q=q.ilike('lokasi',`%${w}%`);
-    const {data}=await q; setRes(data||[]); setStep(3);
+    const data=filterProps(await allProps(),{status:n.status,max:n.budget,q:n.lokasi}).slice(0,3); setRes(data); setStep(3);
     try{await sb.from('y2k_leads').insert({purpose:n.status,needs:`Chatbot: ${n.lokasi||'bebas'}`,budget_max:n.budget})}catch{}};
   const cur=Q[step];
   return <div className="fixed bottom-4 right-4 z-40">
