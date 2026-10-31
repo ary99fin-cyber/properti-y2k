@@ -2,17 +2,17 @@
 import { useState } from 'react';
 import { oper, kprBaru } from '@/lib/kpr';
 import { rp } from '@/lib/supabase';
-const N=({l,v,s,step,suf})=><label className="block text-xs text-stone-400">{l}<div className="relative mt-1"><input type="number" inputMode="decimal" step={step} value={v} onChange={e=>s(e.target.value)} className="inp"/>{suf&&<span className="absolute right-3 top-2.5 text-stone-500">{suf}</span>}</div></label>;
+const N=({l,v,s,step,suf})=><label className="block min-w-0 text-xs text-stone-400">{l}<div className="relative mt-1 min-w-0"><input type="number" inputMode="decimal" step={step} value={v} onChange={e=>s(e.target.value)} className="inp"/>{suf&&<span className="absolute right-3 top-2.5 text-stone-500">{suf}</span>}</div></label>;
 export default function KprCalculator({harga=0,cfg,judul=''}){
   const [mode,setMode]=useState('oper'),[h,setH]=useState(harga),[sisa,setSisa]=useState(Math.round(harga*.6)),[tenor,setTenor]=useState(10),[bunga,setBunga]=useState(9),[dp,setDp]=useState(20);
   const [a,setA]=useState({npoptkp:+cfg.npoptkp,bphtbPct:+cfg.bphtb_pct,notarisPct:+cfg.notaris_pct,bankFee:+cfg.bank_fee,pphPembeli:false});
   const o=oper({harga:+h,sisa:+sisa,tenor:+tenor,bunga:+bunga,...a}), k=kprBaru({harga:+h,dpPct:+dp,tenor:+tenor,bunga:+bunga});
   const row=(l,v,b)=><div className={`flex justify-between py-2 ${b?'border-t border-gold/40 text-lg font-semibold text-gold':'text-sm'}`}><span className={b?'':'text-stone-400'}>{l}</span><span>{rp(v)}</span></div>;
   const msg=encodeURIComponent(mode==='oper'?`Halo, simulasi oper kredit ${judul}: harga ${rp(h)}, sisa pokok ${rp(sisa)}, tenor ${tenor} th. Estimasi tunai ${rp(o.tunai)}, cicilan ${rp(o.cicilan)}/bln.`:`Halo, simulasi KPR ${judul}: harga ${rp(h)}, DP ${dp}%, tenor ${tenor} th. Cicilan ${rp(k.cicilan)}/bln.`);
-  return <div className="rounded-2xl border border-line bg-card p-5 sm:p-7">
+  return <div className="min-w-0 overflow-hidden rounded-2xl border border-line bg-card p-4 sm:p-7">
     <h2 className="font-serif text-3xl text-white">Simulasi <span className="text-gold">Kredit</span></h2>
     <div className="my-4 grid grid-cols-2 gap-2">{[['oper','Oper Kredit'],['kpr','KPR Baru']].map(([m,t])=><button key={m} onClick={()=>setMode(m)} className={`rounded-lg py-2 text-sm ${mode===m?'bg-gold font-semibold text-black':'border border-line'}`}>{t}</button>)}</div>
-    <div className="grid gap-3 sm:grid-cols-2">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
       <N l={mode==='oper'?'Harga kesepakatan (Rp)':'Harga properti (Rp)'} v={h} s={setH}/>
       {mode==='oper'?<N l="Sisa pokok KPR (Rp)" v={sisa} s={setSisa}/>:<N l="Uang muka (DP)" v={dp} s={setDp} suf="%"/>}
       <N l={mode==='oper'?'Sisa tenor':'Tenor'} v={tenor} s={setTenor} suf="tahun"/><N l="Bunga estimasi" v={bunga} s={setBunga} step=".1" suf="%/thn"/></div>

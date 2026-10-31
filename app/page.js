@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { rp, fotos, specs, getSettings } from '@/lib/supabase';
+import { rp, fotos, specs, getSettings, tc } from '@/lib/supabase';
 import { allProps, filterProps } from '@/lib/data';
 export const dynamic='force-dynamic';
 export default async function Home({searchParams}){
@@ -20,10 +20,10 @@ export default async function Home({searchParams}){
     <section className="mx-auto grid max-w-6xl gap-6 px-5 pb-20 sm:grid-cols-2 lg:grid-cols-3">
       {list.map(p=>{const f=fotos(p)[0],sp=specs(p.spesifikasi).filter(([k])=>/kamar|luas|lt|lb|km|kt/i.test(k)).slice(0,3);
         return <Link key={p.id} href={`/properti/${p.id}`} className="group overflow-hidden rounded-2xl border border-line bg-card transition hover:border-gold/60">
-          <div className="relative aspect-[4/3] overflow-hidden bg-black">{f&&<img src={f} alt={p.judul} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105"/>}
+          <div className="relative aspect-[4/3] overflow-hidden bg-black">{f&&<img src={f} alt={tc(p.judul)} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105"/>}
             <span className="absolute left-3 top-3 rounded-full bg-black/70 px-3 py-1 text-xs text-gold backdrop-blur">{p.status}</span></div>
           <div className="space-y-2 p-5"><p className="font-serif text-2xl text-gold">{rp(p.harga)}</p>
-            <h3 className="line-clamp-2 font-medium text-white">{p.judul}</h3><p className="text-sm text-stone-400">📍 {p.lokasi}</p>
+            <h3 className="line-clamp-2 font-medium text-white">{tc(p.judul)}</h3><p className="text-sm text-stone-400">📍 {tc(p.lokasi)}</p>
             <div className="flex flex-wrap gap-2 pt-1">{sp.map(([k,v])=><span key={k} className="rounded-md border border-line px-2 py-1 text-xs text-stone-300">{k}: {v}</span>)}</div></div></Link>})}
       {!list.length&&<p className="col-span-full py-20 text-center text-stone-500">Belum ada properti yang cocok.</p>}
     </section></main>}

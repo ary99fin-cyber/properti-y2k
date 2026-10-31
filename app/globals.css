@@ -1,5 +1,6 @@
 @tailwind base;@tailwind components;@tailwind utilities;
-body{@apply bg-ink text-stone-200 font-sans antialiased}
+body{@apply bg-ink text-stone-200 font-sans antialiased overflow-x-hidden}
+h1,h2,h3,p{overflow-wrap:anywhere}
 .inp{@apply w-full rounded-lg border border-line bg-card px-3 py-2.5 text-sm outline-none focus:border-gold}
 .btn{@apply rounded-lg bg-gold px-5 py-2.5 text-sm font-semibold text-black transition hover:brightness-110}
 .btn2{@apply rounded-lg border border-line px-4 py-2 text-sm hover:border-gold hover:text-gold}
