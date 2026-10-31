@@ -1,0 +1,43 @@
+'use client';
+import { useEffect, useState } from 'react';
+import { sb, rp, DEF } from '@/lib/supabase';
+const empty={judul:'',lokasi:'',status:'Dijual',harga:'',spesifikasi:'',deskripsi:'',fasilitas:'',foto:[],brighton_url:''};
+const PRESET=['#C9A24B','#D4AF37','#B8860B','#C0C0C0','#3FB68B','#E0457B'];
+async function kompres(file){const i=await createImageBitmap(file),k=Math.min(1,1600/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=i.width*k;c.height=i.height*k;c.getContext('2d').drawImage(i,0,0,c.width,c.height);return new Promise(r=>c.toBlob(r,'image/jpeg',.82))}
+const F=({l,children})=><label className="block text-xs text-stone-400">{l}<div className="mt-1">{children}</div></label>;
+export default function Admin(){
+  const [user,setUser]=useState(null),[rows,setRows]=useState([]),[f,setF]=useState(null),[tab,setTab]=useState('p'),[msg,setMsg]=useState(''),[cfg,setCfg]=useState(DEF),[c,setC]=useState({e:'',p:''}),[bu,setBu]=useState('');
+  const load=async()=>{const {data}=await sb.from('properties').select('*').order('created_at',{ascending:false});setRows(data||[]);const s=await sb.from('site_settings').select('*');setCfg(x=>({...x,...Object.fromEntries((s.data||[]).map(r=>[r.key,r.value]))}))};
+  useEffect(()=>{sb.auth.getSession().then(({data})=>setUser(data.session?.user||null))},[]);
+  useEffect(()=>{if(!user)return;load();const ch=sb.channel('pr').on('postgres_changes',{event:'*',schema:'public',table:'properties'},load).subscribe();return()=>sb.removeChannel(ch)},[user]);
+  const login=async e=>{e.preventDefault();const {data,error}=await sb.auth.signInWithPassword({email:c.e,password:c.p});error?setMsg(error.message):setUser(data.user)};
+  const save=async()=>{setMsg('Menyimpan…');const {id,created_at,...row}={...f,harga:Number(f.harga||0),brighton_url:f.brighton_url||null};const {error}=id?await sb.from('properties').update(row).eq('id',id):await sb.from('properties').insert(row);setMsg(error?error.message:'Tersimpan ✓');if(!error){setF(null);load()}};
+  const del=async p=>{if(confirm('Hapus "'+p.judul+'"?')){await sb.from('properties').delete().eq('id',p.id);load()}};
+  const up=async files=>{setMsg('Mengunggah…');const u=[];for(const file of files){const p=crypto.randomUUID()+'.jpg',{error}=await sb.storage.from('foto').upload(p,await kompres(file),{contentType:'image/jpeg',cacheControl:'31536000'});if(error)return setMsg(error.message);u.push(sb.storage.from('foto').getPublicUrl(p).data.publicUrl)}setF(x=>({...x,foto:[...x.foto,...u]}));setMsg('')};
+  const imp=async()=>{setMsg('Membaca listing…');const r=await fetch('/api/brighton-import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:bu})}),d=await r.json();if(!r.ok)return setMsg(d.error);setF({...empty,judul:d.judul,lokasi:d.lokasi,harga:d.harga,status:d.status,spesifikasi:d.spesifikasi,deskripsi:d.deskripsi,foto:d.foto||[],brighton_url:d.url});setMsg((d.warnings||[]).join(' '))};
+  const saveCfg=async()=>{const {error}=await sb.from('site_settings').upsert(Object.entries(cfg).map(([key,value])=>({key,value:String(value)})));setMsg(error?error.message:'Pengaturan tersimpan ✓ (buka beranda untuk melihat)')};
+  if(!user) return <form onSubmit={login} className="mx-auto mt-24 max-w-sm space-y-3 rounded-2xl border border-line bg-card p-6"><h1 className="font-serif text-3xl text-gold">Admin</h1>
+    <input className="inp" type="email" placeholder="Email" onChange={e=>setC({...c,e:e.target.value})}/><input className="inp" type="password" placeholder="Password" onChange={e=>setC({...c,p:e.target.value})}/><button className="btn w-full">Masuk</button><p className="text-sm text-red-400">{msg}</p></form>;
+  const set=k=>e=>setF({...f,[k]:e.target.value}), cs=k=>e=>setCfg({...cfg,[k]:e.target.value});
+  return <main className="mx-auto max-w-5xl px-5 py-6"><div className="mb-5 flex items-center justify-between"><h1 className="font-serif text-3xl text-gold">Dashboard</h1><div className="flex gap-2">
+    {[['p','Properti'],['t','Tema & Biaya']].map(([k,t])=><button key={k} className={tab===k?'btn':'btn2'} onClick={()=>setTab(k)}>{t}</button>)}<button className="btn2" onClick={()=>{sb.auth.signOut();setUser(null)}}>Keluar</button></div></div>
+    {msg&&<p className="mb-3 text-sm text-gold">{msg}</p>}
+    {tab==='t'&&<div className="space-y-4 rounded-2xl border border-line bg-card p-5"><F l="Warna aksen"><div className="flex items-center gap-2"><input type="color" value={cfg.accent} onChange={cs('accent')} className="h-10 w-14"/>{PRESET.map(h=><button key={h} onClick={()=>setCfg({...cfg,accent:h})} style={{background:h}} className="h-8 w-8 rounded-full border border-white/20"/>)}</div></F>
+      <div className="grid gap-3 sm:grid-cols-2">{[['wa','WhatsApp (62…)'],['agen','Nama agen'],['npoptkp','NPOPTKP (Rp)'],['bphtb_pct','Tarif BPHTB %'],['notaris_pct','Notaris/PPAT %'],['bank_fee','Biaya bank (Rp)']].map(([k,l])=><F key={k} l={l}><input className="inp" value={cfg[k]} onChange={cs(k)}/></F>)}</div><button className="btn" onClick={saveCfg}>Simpan</button></div>}
+    {tab==='p'&&!f&&<><div className="mb-4 flex flex-wrap gap-2"><button className="btn" onClick={()=>setF(empty)}>+ Tambah properti</button>
+      <input className="inp max-w-xs" placeholder="Link detail brighton.co.id" value={bu} onChange={e=>setBu(e.target.value)}/><button className="btn2" onClick={imp}>Impor</button></div>
+      <div className="space-y-2">{rows.map(p=><div key={p.id} className="flex items-center gap-3 rounded-xl border border-line bg-card p-3">{p.foto?.[0]&&<img src={p.foto[0]} className="h-14 w-20 rounded object-cover" alt=""/>}
+        <div className="min-w-0 flex-1"><p className="truncate font-medium text-white">{p.judul}</p><p className="text-xs text-stone-400">{p.status} · {rp(p.harga)} · {p.lokasi}</p></div>
+        <button className="btn2" onClick={()=>setF({...empty,...p,harga:p.harga??''})}>Edit</button><button className="btn2 text-red-400" onClick={()=>del(p)}>Hapus</button></div>)}</div></>}
+    {tab==='p'&&f&&<div className="space-y-3 rounded-2xl border border-line bg-card p-5">
+      <F l="Judul"><input className="inp" value={f.judul} onChange={set('judul')}/></F>
+      <div className="grid gap-3 sm:grid-cols-3"><F l="Lokasi"><input className="inp" value={f.lokasi} onChange={set('lokasi')}/></F><F l="Harga (Rp)"><input type="number" className="inp" value={f.harga} onChange={set('harga')}/></F>
+        <F l="Status"><select className="inp" value={f.status} onChange={set('status')}><option>Dijual</option><option>Disewa</option></select></F></div>
+      <F l="Spesifikasi (satu per baris: Label: nilai)"><textarea rows="5" className="inp" placeholder={'Kamar tidur: 3\nKamar mandi: 2\nLuas bangunan: 120 m²'} value={f.spesifikasi} onChange={set('spesifikasi')}/></F>
+      <F l="Deskripsi"><textarea rows="5" className="inp" value={f.deskripsi} onChange={set('deskripsi')}/></F>
+      <F l="Fasilitas (pisahkan koma)"><input className="inp" value={f.fasilitas} onChange={set('fasilitas')}/></F>
+      <F l="Foto (foto pertama = sampul)"><div className="mb-2 flex flex-wrap gap-2">{f.foto.map((u,i)=><div key={u} className="relative"><img src={u} alt="" className="h-20 w-28 rounded object-cover"/>
+        <button className="absolute right-1 top-1 rounded bg-black/80 px-1.5 text-xs" onClick={()=>setF({...f,foto:f.foto.filter((_,k)=>k!==i)})}>✕</button>
+        {i>0&&<button className="absolute bottom-1 left-1 rounded bg-black/80 px-1.5 text-xs text-gold" onClick={()=>{const a=[...f.foto];[a[0],a[i]]=[a[i],a[0]];setF({...f,foto:a})}}>sampul</button>}</div>)}</div>
+        <input type="file" accept="image/*" multiple onChange={e=>up([...e.target.files])} className="text-sm"/></F>
+      <div className="flex gap-2"><button className="btn" onClick={save}>Simpan</button><button className="btn2" onClick={()=>setF(null)}>Batal</button></div></div>}</main>}
