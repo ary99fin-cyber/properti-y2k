@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import { rp, fotos, specs, getSettings, tc } from '@/lib/supabase';
 import { allProps, filterProps } from '@/lib/data';
+const TIPE=[['','Semua','✨'],['Rumah','Rumah','🏠'],['Tanah','Tanah','🌱'],['Gudang','Gudang','🏭'],['Ruko','Ruko','🏬']];
 export const dynamic='force-dynamic';
 export default async function Home({searchParams}){
-  const {q='',status='',max=''}=searchParams, s=await getSettings();
-  const list=filterProps(await allProps(),{q,status,max});
+  const {q='',status='',max='',tipe=''}=searchParams, s=await getSettings();
+  const list=filterProps(await allProps(),{q,status,max,tipe});
   return <main>
     <header className="border-b border-line"><div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-3">
       <Link href="/" className="flex min-w-0 items-center gap-3"><img src="/yenny-khuang.jpg" alt={s.agen} className="h-11 w-11 shrink-0 rounded-full object-cover object-top ring-1 ring-gold/60"/>
@@ -13,12 +14,11 @@ export default async function Home({searchParams}){
     <section className="mx-auto max-w-6xl px-5 pb-10 pt-14 sm:pt-20">
       <p className="mb-3 text-xs uppercase tracking-[.3em] text-gold">Koleksi Terkurasi</p>
       <h1 className="max-w-2xl font-serif text-4xl leading-tight text-white sm:text-6xl">Hunian pilihan, <em className="text-gold">didampingi</em> dari survei hingga akad.</h1>
-      <div className="mt-8 flex items-center gap-4 rounded-2xl border border-line bg-card p-3 pr-5 sm:inline-flex">
-        <img src="/yenny-khuang.jpg" alt={`${s.agen} - Agen Brighton`} className="h-20 w-20 shrink-0 rounded-xl object-cover object-top ring-1 ring-gold/50 sm:h-24 sm:w-24"/>
-        <div className="min-w-0"><p className="text-[11px] uppercase tracking-[.25em] text-gold">Agen Brighton</p><p className="font-serif text-2xl leading-tight text-white">{s.agen}</p>
-          <a href={`https://wa.me/${s.wa}`} className="mt-1 inline-block text-sm text-stone-400 hover:text-gold">Chat via WhatsApp →</a></div></div>
-      <form className="mt-6 grid gap-3 sm:grid-cols-[1fr_150px_170px_auto]">
-        <input name="q" defaultValue={q} placeholder="Cari nama atau lokasi…" className="inp"/>
+      <nav aria-label="Jenis properti" className="mt-8 grid grid-cols-5 gap-2 sm:flex sm:flex-wrap">
+        {TIPE.map(([v,l,ic])=>{const on=tipe===v,qs=new URLSearchParams({...(q&&{q}),...(status&&{status}),...(max&&{max}),...(v&&{tipe:v})}).toString();
+          return <Link key={l} href={qs?`/?${qs}`:'/'} scroll={false} className={`flex flex-col items-center gap-1 rounded-xl border px-1 py-2.5 text-xs transition sm:flex-row sm:gap-2 sm:rounded-full sm:px-5 sm:text-sm ${on?'border-gold bg-gold font-semibold text-black':'border-line bg-card text-stone-300 hover:border-gold hover:text-gold'}`}><span className="text-lg leading-none sm:text-base">{ic}</span>{l}</Link>})}</nav>
+      <form className="mt-5 grid gap-3 sm:grid-cols-[1fr_150px_170px_auto]">
+        <input type="hidden" name="tipe" value={tipe}/><input name="q" defaultValue={q} placeholder="Cari nama atau lokasi…" className="inp"/>
         <select name="status" defaultValue={status} className="inp"><option value="">Dijual/Disewa</option><option>Dijual</option><option>Disewa</option></select>
         <select name="max" defaultValue={max} className="inp"><option value="">Semua harga</option>{[500e6,1e9,2e9,5e9].map(v=><option key={v} value={v}>≤ {rp(v)}</option>)}</select>
         <button className="btn">Cari</button></form>
