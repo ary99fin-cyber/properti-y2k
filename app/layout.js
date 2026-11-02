@@ -8,4 +8,4 @@ export const dynamic='force-dynamic';
 export const metadata={title:'Properti Y2K — Hunian Pilihan',description:'Katalog properti pilihan dengan simulasi KPR & oper kredit.'};
 const rgb=h=>{const n=parseInt((h||'#C9A24B').slice(1),16);return `${n>>16} ${(n>>8)&255} ${n&255}`};
 export default async function Root({children}){const s=await getSettings();
- return <html lang="id" className={`${serif.variable} ${sans.variable}`} style={{'--accent':rgb(s.accent)}}><body>{children}<ChatWidget wa={s.wa}/></body></html>}
+ return <html lang="id" className={`${serif.variable} ${sans.variable}`} style={{'--accent':rgb(s.accent),'--bg':rgb(s.bg||'#0B0B0C')}}><body>{children}<ChatWidget wa={s.wa}/></body></html>}
