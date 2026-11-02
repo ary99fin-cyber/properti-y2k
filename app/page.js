@@ -6,10 +6,10 @@ export default async function Home({searchParams}){
   const {q='',status='',max=''}=searchParams, s=await getSettings();
   const list=filterProps(await allProps(),{q,status,max});
   return <main>
-    <header className="border-b border-line"><div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-4">
-      <span className="whitespace-nowrap font-serif text-2xl tracking-wide text-gold">Properti Y2K</span>
-      <a href={`https://wa.me/${s.wa}`} className="flex items-center gap-2 rounded-full border border-line py-1 pl-1 pr-4 text-sm text-stone-300 transition hover:border-gold hover:text-gold">
-        <img src="/yenny-khuang.jpg" alt={s.agen} className="h-8 w-8 rounded-full object-cover object-top"/><span className="whitespace-nowrap">Hubungi {s.agen}</span></a></div></header>
+    <header className="border-b border-line"><div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-3">
+      <Link href="/" className="flex min-w-0 items-center gap-3"><img src="/yenny-khuang.jpg" alt={s.agen} className="h-11 w-11 shrink-0 rounded-full object-cover object-top ring-1 ring-gold/60"/>
+        <span className="whitespace-nowrap font-serif text-2xl tracking-wide text-gold">Properti Y2K</span></Link>
+      <a href={`https://wa.me/${s.wa}`} className="shrink-0 rounded-full border border-line px-4 py-2 text-sm text-stone-300 transition hover:border-gold hover:text-gold">Hubungi<span className="hidden sm:inline"> {s.agen}</span></a></div></header>
     <section className="mx-auto max-w-6xl px-5 pb-10 pt-14 sm:pt-20">
       <p className="mb-3 text-xs uppercase tracking-[.3em] text-gold">Koleksi Terkurasi</p>
       <h1 className="max-w-2xl font-serif text-4xl leading-tight text-white sm:text-6xl">Hunian pilihan, <em className="text-gold">didampingi</em> dari survei hingga akad.</h1>
