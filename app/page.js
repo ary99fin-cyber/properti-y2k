@@ -6,12 +6,18 @@ export default async function Home({searchParams}){
   const {q='',status='',max=''}=searchParams, s=await getSettings();
   const list=filterProps(await allProps(),{q,status,max});
   return <main>
-    <header className="border-b border-line"><div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
-      <span className="font-serif text-2xl tracking-wide text-gold">Properti Y2K</span><a className="text-sm text-stone-400 hover:text-gold" href={`https://wa.me/${s.wa}`}>Hubungi {s.agen}</a></div></header>
+    <header className="border-b border-line"><div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-4">
+      <span className="whitespace-nowrap font-serif text-2xl tracking-wide text-gold">Properti Y2K</span>
+      <a href={`https://wa.me/${s.wa}`} className="flex items-center gap-2 rounded-full border border-line py-1 pl-1 pr-4 text-sm text-stone-300 transition hover:border-gold hover:text-gold">
+        <img src="/yenny-khuang.jpg" alt={s.agen} className="h-8 w-8 rounded-full object-cover object-top"/><span className="whitespace-nowrap">Hubungi {s.agen}</span></a></div></header>
     <section className="mx-auto max-w-6xl px-5 pb-10 pt-14 sm:pt-20">
       <p className="mb-3 text-xs uppercase tracking-[.3em] text-gold">Koleksi Terkurasi</p>
       <h1 className="max-w-2xl font-serif text-4xl leading-tight text-white sm:text-6xl">Hunian pilihan, <em className="text-gold">didampingi</em> dari survei hingga akad.</h1>
-      <form className="mt-8 grid gap-3 sm:grid-cols-[1fr_150px_170px_auto]">
+      <div className="mt-8 flex items-center gap-4 rounded-2xl border border-line bg-card p-3 pr-5 sm:inline-flex">
+        <img src="/yenny-khuang.jpg" alt={`${s.agen} - Agen Brighton`} className="h-20 w-20 shrink-0 rounded-xl object-cover object-top ring-1 ring-gold/50 sm:h-24 sm:w-24"/>
+        <div className="min-w-0"><p className="text-[11px] uppercase tracking-[.25em] text-gold">Agen Brighton</p><p className="font-serif text-2xl leading-tight text-white">{s.agen}</p>
+          <a href={`https://wa.me/${s.wa}`} className="mt-1 inline-block text-sm text-stone-400 hover:text-gold">Chat via WhatsApp →</a></div></div>
+      <form className="mt-6 grid gap-3 sm:grid-cols-[1fr_150px_170px_auto]">
         <input name="q" defaultValue={q} placeholder="Cari nama atau lokasi…" className="inp"/>
         <select name="status" defaultValue={status} className="inp"><option value="">Dijual/Disewa</option><option>Dijual</option><option>Disewa</option></select>
         <select name="max" defaultValue={max} className="inp"><option value="">Semua harga</option>{[500e6,1e9,2e9,5e9].map(v=><option key={v} value={v}>≤ {rp(v)}</option>)}</select>
