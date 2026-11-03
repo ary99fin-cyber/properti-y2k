@@ -19,7 +19,7 @@ const pickMime = () => typeof MediaRecorder === 'undefined' ? null : MIMES.find(
 export default function VideoMaker({ p, cfg, caption }) {
   const cv = useRef(null), recRef = useRef(false);
   const fotos = (p.foto || []).slice(0, 12);
-  const [style, setStyle] = useState('dinamis'), [q, setQ] = useState(720), [sel, setSel] = useState(() => fotos.slice(0, 5).map((_, i) => i));
+  const [style, setStyle] = useState('luxury'), [q, setQ] = useState(720), [sel, setSel] = useState(() => fotos.slice(0, 5).map((_, i) => i));
   const [tl, setTl] = useState(null), [phase, setPhase] = useState('idle'), [prog, setProg] = useState(0), [note, setNote] = useState('');
   const [res, setRes] = useState(null), [cap, setCap] = useState(caption || '');
   // Minimal dua foto wajib agar timeline memiliki slide foto dan outro.
@@ -79,29 +79,73 @@ export default function VideoMaker({ p, cfg, caption }) {
   const record = async () => {
     if (!tl || recRef.current) return;
     const mime = pickMime();
-    if (mime === null) return setNote('Browser ini tidak mendukung perekaman video. Gunakan Chrome terbaru di Android/PC.');
+    if (mime === null) return setNote('Browser ini tidak mendukung perekaman video. Gunakan Chrome terbaru.');
+    if (!Number.isFinite(tl.total) || tl.total < 1) return setNote('Durasi video tidak valid. Muat ulang halaman lalu coba lagi.');
     recRef.current = true; setRes(null); setProg(0); setNote(''); setPhase('rec');
+    let stream;
     try {
       const el = cv.current, c = el.getContext('2d');
-      const rec = new MediaRecorder(el.captureStream(30), { ...(mime ? { mimeType: mime } : {}), videoBitsPerSecond: q >= 1080 ? 8e6 : 5e6 });
-      const chunks = []; rec.ondataavailable = e => e.data.size && chunks.push(e.data);
-      const stopped = new Promise(r => { rec.onstop = r });
-      rec.start(250); const t0 = performance.now(); let lastP = 0;
-      await new Promise(done => {
-        const loop = now => {
-          const t = (now - t0) / 1000; drawFrame(c, tl, Math.min(t, tl.total - .001));
-          const pr = Math.min(1, t / tl.total); if (pr - lastP > .02) { lastP = pr; setProg(pr) }
-          t >= tl.total + .15 ? done() : requestAnimationFrame(loop);
-        };
-        requestAnimationFrame(loop);
+      if (!el || !c || typeof el.captureStream !== 'function') throw new Error('Canvas video tidak didukung browser ini.');
+      // Gambar frame awal sebelum MediaRecorder dimulai agar stream tidak kosong.
+      drawFrame(c, tl, 0);
+      stream = el.captureStream(30);
+      const track = stream.getVideoTracks()[0];
+      const rec = new MediaRecorder(stream, { ...(mime ? { mimeType: mime } : {}), videoBitsPerSecond: q >= 1080 ? 8_000_000 : 5_000_000 });
+      const chunks = [];
+      rec.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+      const stopped = new Promise((resolve, reject) => {
+        rec.onstop = resolve;
+        rec.onerror = e => reject(e.error || new Error('Perekaman video gagal.'));
       });
-      rec.stop(); await stopped;
-      const type = (rec.mimeType || mime || 'video/webm'), mp4 = type.includes('mp4'), blob = new Blob(chunks, { type });
-      if (!blob.size) throw new Error('Video kosong. Pastikan layar tetap menyala lalu coba lagi.');
-      setRes({ url: URL.createObjectURL(blob), blob, ext: mp4 ? 'mp4' : 'webm', type: type.split(';')[0], codecOk: mp4 && /avc1|h264/i.test(type) });
-      setPhase('done');
-    } catch (e) { setNote(e.message || 'Gagal merekam.'); setPhase('ready') }
-    recRef.current = false;
+      rec.start(1000);
+      // Beri waktu recorder menginisialisasi container sebelum menghitung durasi.
+      await new Promise(resolve => setTimeout(resolve, 250));
+      const t0 = performance.now(); let lastP = 0;
+      await new Promise((resolve, reject) => {
+        let raf = 0, finished = false;
+        const finish = () => { if (finished) return; finished = true; if (raf) cancelAnimationFrame(raf); resolve(); };
+        const loop = now => {
+          if (finished) return;
+          const elapsed = (now - t0) / 1000;
+          drawFrame(c, tl, Math.min(elapsed, tl.total - 0.001));
+          // Beberapa browser Android mendukung requestFrame untuk canvas capture.
+          try { track?.requestFrame?.(); } catch {}
+          const pr = Math.min(1, elapsed / tl.total);
+          if (pr - lastP > 0.015) { lastP = pr; setProg(pr); }
+          if (elapsed >= tl.total + 0.35) finish();
+          else raf = requestAnimationFrame(loop);
+        };
+        raf = requestAnimationFrame(loop);
+        // Pengaman jika RAF berhenti total ketika browser membatasi tab.
+        const guard = setTimeout(() => { if (!finished) { if (raf) cancelAnimationFrame(raf); reject(new Error('Perekaman terhenti oleh browser. Tetap buka halaman dan nyalakan layar, lalu coba lagi.')); } }, (tl.total + 12) * 1000);
+        stopped.finally(() => clearTimeout(guard));
+      });
+      // Minta chunk terakhir, lalu stop dan tunggu event onstop sebelum membuat Blob.
+      try { rec.requestData(); } catch {}
+      await new Promise(resolve => setTimeout(resolve, 150));
+      if (rec.state !== 'inactive') rec.stop();
+      await stopped;
+      stream.getTracks().forEach(t => t.stop()); stream = null;
+      const type = rec.mimeType || mime || 'video/webm';
+      const blob = new Blob(chunks, { type });
+      if (blob.size < 10_000) throw new Error('File video kosong atau terlalu kecil. Coba lagi dengan layar tetap menyala dan halaman tidak berpindah.');
+      // Validasi metadata durasi sebelum tombol unduh ditampilkan.
+      const url = URL.createObjectURL(blob);
+      const duration = await new Promise((resolve, reject) => {
+        const probe = document.createElement('video');
+        const cleanup = () => { probe.removeAttribute('src'); probe.load(); };
+        probe.preload = 'metadata'; probe.onloadedmetadata = () => { const d = probe.duration; cleanup(); Number.isFinite(d) && d > 0.5 ? resolve(d) : reject(new Error('Video tersimpan dengan durasi 0 detik. Perekaman belum selesai; coba lagi dan jangan pindah aplikasi.')); };
+        probe.onerror = () => { cleanup(); reject(new Error('Browser tidak dapat membaca hasil video. Coba gunakan Chrome terbaru.')); };
+        probe.src = url;
+        setTimeout(() => { if (probe.readyState < 1) { cleanup(); reject(new Error('Pemeriksaan durasi video timeout. Coba ulangi dengan layar tetap menyala.')); } }, 12_000);
+      }).catch(e => { URL.revokeObjectURL(url); throw e; });
+      const mp4 = type.includes('mp4');
+      setRes({ url, blob, ext: mp4 ? 'mp4' : 'webm', type: type.split(';')[0], codecOk: mp4 && /avc1|h264/i.test(type), duration });
+      setPhase('done'); setProg(1);
+    } catch (e) {
+      stream?.getTracks?.().forEach(t => t.stop());
+      setNote(e.message || 'Gagal merekam video.'); setPhase('ready');
+    } finally { recRef.current = false; }
   };
 
   const name = () => `${slug(p.judul)}-video.${res.ext}`;
@@ -131,9 +175,10 @@ export default function VideoMaker({ p, cfg, caption }) {
       <div className="flex flex-wrap items-center gap-2">
         <button className="btn" disabled={busy || !tl || sel.length < minSel || fotos.length < minSel} onClick={record}>{res ? 'Buat ulang video' : 'Buat video'}</button>
         <select className="inp !w-auto" disabled={busy} value={q} onChange={e => setQ(Number(e.target.value))}><option value={720}>720p (cepat)</option><option value={1080}>1080p (lebih tajam)</option></select></div>
-      <p className="text-xs text-stone-500">Video 9:16 tanpa suara (aman untuk TikTok, Reels, Status WA). Proses perekaman berjalan real-time: biarkan layar tetap terbuka. Musik dipilih langsung di aplikasi tujuan.</p>
+      <p className="text-xs text-stone-500">Video 9:16 tanpa suara. Proses perekaman berjalan real-time: biarkan halaman tetap terbuka dan layar menyala sampai selesai. Musik dapat ditambahkan di Instagram/TikTok.</p>
       {res && <div className="space-y-3 rounded-xl border border-line p-3">
         <video src={res.url} controls playsInline loop muted className="mx-auto max-h-80 rounded-lg bg-black" />
+        <p className="text-xs text-emerald-400">Durasi terverifikasi: {res.duration.toFixed(1)} detik.</p>
         {!res.codecOk && <p className="text-xs text-amber-400">Browser ini menghasilkan {res.ext.toUpperCase()} (bukan MP4 H.264), sebagian aplikasi bisa menolaknya. Untuk hasil paling aman, buka dengan Chrome Android terbaru.</p>}
         <label className="block text-xs text-stone-400">Caption — boleh diedit<textarea rows="7" className="inp mt-1 font-mono text-xs" value={cap} onChange={e => setCap(e.target.value)} /></label>
         <div className="flex flex-wrap gap-2"><button className="btn flex-1 sm:flex-none" onClick={share}>Bagikan ke aplikasi</button><button className="btn2" onClick={dl}>Unduh video</button><button className="btn2" onClick={copy}>Salin caption</button></div></div>}
