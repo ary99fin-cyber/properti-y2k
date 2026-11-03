@@ -22,16 +22,29 @@ export default function VideoMaker({ p, cfg, caption }) {
   const [style, setStyle] = useState('dinamis'), [q, setQ] = useState(720), [sel, setSel] = useState(() => fotos.slice(0, 5).map((_, i) => i));
   const [tl, setTl] = useState(null), [phase, setPhase] = useState('idle'), [prog, setProg] = useState(0), [note, setNote] = useState('');
   const [res, setRes] = useState(null), [cap, setCap] = useState(caption || '');
-  const minSel = Math.min(2, fotos.length);
+  // Minimal dua foto wajib agar timeline memiliki slide foto dan outro.
+  const minSel = 2;
 
   // siapkan timeline tiap kali foto/gaya/kualitas berubah
   useEffect(() => {
     let dead = false;
-    if (sel.length < minSel || !cv.current) { setTl(null); return }
+    if (fotos.length < minSel) {
+      setTl(null); setPhase('idle');
+      setNote('Properti ini belum memiliki minimal 2 foto untuk dibuat menjadi video.');
+      return;
+    }
+    if (sel.length < minSel || !cv.current) {
+      setTl(null); setPhase('idle');
+      setNote(sel.length < minSel ? 'Pilih minimal 2 foto untuk membuat video.' : '');
+      return;
+    }
     (async () => {
       setPhase('loading'); setNote('');
       try {
-        const imgs = await Promise.all(sel.map(i => loadImg(fotos[i])));
+        const urls = sel.map(i => fotos[i]).filter(Boolean);
+        if (urls.length < minSel) throw new Error('Pilih minimal 2 foto yang valid untuk membuat video.');
+        const imgs = await Promise.all(urls.map(loadImg));
+        if (imgs.length < minSel) throw new Error('Minimal 2 foto harus berhasil dimuat.');
         let ag = null; try { ag = await loadImg('/yenny-khuang.jpg') } catch {}
         const W = q, H = Math.round(q * 16 / 9), c = cv.current.getContext('2d');
         cv.current.width = W; cv.current.height = H;
@@ -113,9 +126,10 @@ export default function VideoMaker({ p, cfg, caption }) {
       <div><p className="mb-1 text-xs text-stone-400">Gaya video</p>
         <div className="grid grid-cols-3 gap-2">{Object.entries(STYLES).map(([k, v]) => <button key={k} disabled={busy} onClick={() => setStyle(k)} className={`rounded-xl border p-2 text-left ${style === k ? 'border-gold bg-gold/10 text-gold' : 'border-line text-stone-300'}`}><p className="text-sm font-medium">{v.label}</p><p className="text-[11px] text-stone-500">{v.sub}</p></button>)}</div></div>
       <div><p className="mb-1 text-xs text-stone-400">Pilih 2–8 foto (urutan sesuai yang diketuk) — {sel.length} dipilih</p>
+        {fotos.length < 2 && <p className="mb-2 text-xs text-amber-400">Tambahkan minimal 2 foto pada data properti agar video dapat dibuat.</p>}
         <div className="flex gap-2 overflow-x-auto pb-1">{fotos.map((u, i) => { const n = sel.indexOf(i); return <button key={u} disabled={busy} onClick={() => toggle(i)} className={`relative shrink-0 rounded-lg border-2 ${n >= 0 ? 'border-gold' : 'border-transparent opacity-60'}`}><img src={u} alt="" className="h-14 w-20 rounded object-cover" />{n >= 0 && <span className="absolute left-1 top-1 grid h-5 w-5 place-items-center rounded-full bg-gold text-[11px] font-bold text-black">{n + 1}</span>}</button> })}</div></div>
       <div className="flex flex-wrap items-center gap-2">
-        <button className="btn" disabled={busy || !tl} onClick={record}>{res ? 'Buat ulang video' : 'Buat video'}</button>
+        <button className="btn" disabled={busy || !tl || sel.length < minSel || fotos.length < minSel} onClick={record}>{res ? 'Buat ulang video' : 'Buat video'}</button>
         <select className="inp !w-auto" disabled={busy} value={q} onChange={e => setQ(Number(e.target.value))}><option value={720}>720p (cepat)</option><option value={1080}>1080p (lebih tajam)</option></select></div>
       <p className="text-xs text-stone-500">Video 9:16 tanpa suara (aman untuk TikTok, Reels, Status WA). Proses perekaman berjalan real-time: biarkan layar tetap terbuka. Musik dipilih langsung di aplikasi tujuan.</p>
       {res && <div className="space-y-3 rounded-xl border border-line p-3">

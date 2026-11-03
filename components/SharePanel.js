@@ -61,8 +61,8 @@ function caption(k,p,cfg,origin){
   if(k==='fb') return `🏡 ${p.status==='Disewa'?'DISEWAKAN':'DIJUAL'}: ${tc(p.judul)}\n📍 ${tc(p.lokasi)}\n💰 ${rp(p.harga)}\n${sp?sp+'\n':''}${desc?'\n'+desc+(p.deskripsi.length>220?'…':'')+'\n':''}\n🔗 Detail & simulasi KPR: ${link}\n📲 WhatsApp ${cfg.agen}: https://wa.me/${cfg.wa}\n\n${tg.fb}`;
   return `🏡 ${p.status==='Disewa'?'DISEWAKAN':'DIJUAL'}\n${tc(p.judul)}\n\n📍 ${tc(p.lokasi)}\n💰 ${rp(p.harga)}\n${sp}\n\n📲 Hubungi ${cfg.agen} (Brighton)\nWA ${wa} — link di bio\n\n${tg.ig}`;
 }
-export default function SharePanel({p,cfg,onClose}){
-  const cv=useRef(null),[fi,setFi]=useState(0),[fk,setFk]=useState('ig'),[cap,setCap]=useState(''),[note,setNote]=useState(''),[busy,setBusy]=useState(false),[mode,setMode]=useState('img');
+export default function SharePanel({p,cfg,onClose,startMode}){
+  const cv=useRef(null),[fi,setFi]=useState(0),[fk,setFk]=useState('ig'),[cap,setCap]=useState(''),[note,setNote]=useState(''),[busy,setBusy]=useState(false),[mode,setMode]=useState(startMode||'img');
   const f=FORMATS.find(x=>x.k===fk),fotos=(p.foto||[]).slice(0,8);
   useEffect(()=>{setCap(caption(fk,p,cfg,location.origin))},[fk,p]);
   useEffect(()=>{let dead=false;(async()=>{setBusy(true);setNote('');try{
