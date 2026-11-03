@@ -1,4 +1,4 @@
-// Service worker Properti Y2K — sengaja minimal & aman.
+// Service worker Y2K Property — sengaja minimal & aman.
 // Hanya cache aset statis (/_next/static, ikon, font). Data Supabase, /api, dan /admin TIDAK pernah di-cache.
 const V = 'y2k-v1', STATIC = V + '-static';
 const OFFLINE = '/offline.html';

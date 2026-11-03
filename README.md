@@ -1,4 +1,4 @@
-# Properti Y2K — Next.js
+# Y2K Property — Next.js
 1. `cp .env.example .env.local` lalu isi URL + anon key Supabase (sama dengan config.js lama; JANGAN service_role).
 2. Jalankan `supabase.sql` (ganti email admin). Buat user admin di Supabase > Authentication.
 3. `npm install && npm run dev` → beranda `/`, admin `/admin`.

@@ -9,7 +9,7 @@ export default async function Home({searchParams}){
   return <main>
     <header className="border-b border-line"><div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-3">
       <Link href="/" className="flex min-w-0 items-center gap-3"><img src="/yenny-khuang.jpg" alt={s.agen} className="h-11 w-11 shrink-0 rounded-full object-cover object-top ring-1 ring-gold/60"/>
-        <span className="whitespace-nowrap font-serif text-2xl tracking-wide text-gold">Properti Y2K</span></Link>
+        <span className="whitespace-nowrap font-serif text-xl tracking-wide text-gold sm:text-2xl">Y2K Property</span></Link>
       <a href={`https://wa.me/${s.wa}`} className="shrink-0 rounded-full border border-line px-4 py-2 text-sm text-stone-300 transition hover:border-gold hover:text-gold">Hubungi<span className="hidden sm:inline"> {s.agen}</span></a></div></header>
     <section className="mx-auto max-w-6xl px-5 pb-10 pt-14 sm:pt-20">
       <p className="mb-3 text-xs uppercase tracking-[.3em] text-gold">Koleksi Terkurasi</p>

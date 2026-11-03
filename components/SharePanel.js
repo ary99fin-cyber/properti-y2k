@@ -36,7 +36,7 @@ async function render(canvas,f,p,img,agentImg,cfg){
   // badge status (kiri atas) + brand (kanan atas)
   const st=String(p.status||'').toUpperCase();c.font=`700 ${px(30)}px ${sans}`;const bw=c.measureText(st).width+px(48),bh=px(56);
   c.fillStyle=gold;rrect(c,L,top,bw,bh,bh/2);c.fill();c.fillStyle='#000';c.textAlign='left';c.fillText(st,L+px(24),top+bh/2+px(11));
-  c.font=`600 ${px(30)}px ${sans}`;c.fillStyle='#fff';c.textAlign='right';c.fillText('PROPERTI Y2K',w-L,top+bh/2+px(11));c.textAlign='left';
+  c.font=`600 ${px(30)}px ${sans}`;c.fillStyle='#fff';c.textAlign='right';c.fillText('Y2K PROPERTY',w-L,top+bh/2+px(11));c.textAlign='left';
   // blok bawah (digambar dari bawah ke atas)
   let y=h-bot;const av=px(84);
   if(agentImg){c.save();c.beginPath();c.arc(L+av/2,y-av/2,av/2,0,Math.PI*2);c.clip();const ak=Math.max(av/agentImg.width,av/agentImg.height);c.drawImage(agentImg,L+av/2-agentImg.width*ak/2,y-av,agentImg.width*ak,agentImg.height*ak);c.restore();c.strokeStyle=gold;c.lineWidth=px(3);c.beginPath();c.arc(L+av/2,y-av/2,av/2,0,Math.PI*2);c.stroke()}

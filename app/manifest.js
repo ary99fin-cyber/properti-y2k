@@ -3,7 +3,7 @@ export const dynamic='force-dynamic';
 export default async function manifest(){
   const s=await getSettings();
   return {
-    name:'Properti Y2K — Hunian Pilihan', short_name:'Properti Y2K',
+    name:'Y2K Property — Hunian Pilihan', short_name:'Y2K Property',
     description:'Katalog properti pilihan dengan simulasi KPR & oper kredit.',
     id:'/', start_url:'/?source=pwa', scope:'/', display:'standalone', orientation:'portrait',
     lang:'id', background_color:s.bg||'#0B0B0C', theme_color:s.bg||'#0B0B0C',

@@ -12,7 +12,7 @@ export async function generateMetadata({params}){const p=await get(params.id); i
     desc=[`${p.status==='Disewa'?'Disewakan':'Dijual'} ${rp(p.harga)}`,tc(p.lokasi),sp].filter(Boolean).join(' · '),
     imgs=fotos(p).slice(0,3).map(url=>({url,alt:t})),url=`/properti/${p.id}`;
   return {title:t,description:desc,alternates:{canonical:url},
-    openGraph:{type:'website',url,siteName:'Properti Y2K',locale:'id_ID',title:t,description:desc,images:imgs},
+    openGraph:{type:'website',url,siteName:'Y2K Property',locale:'id_ID',title:t,description:desc,images:imgs},
     twitter:{card:'summary_large_image',title:t,description:desc,images:imgs.map(i=>i.url).slice(0,1)}}}
 export default async function Detail({params}){
   const p=await get(params.id); if(!p) notFound(); const s=await getSettings();
