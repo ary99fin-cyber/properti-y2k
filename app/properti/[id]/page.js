@@ -4,9 +4,16 @@ import { rp, fotos, specs, getSettings, tc } from '@/lib/supabase';
 import { oneProp } from '@/lib/data';
 import Gallery from '@/components/Gallery';
 import KprCalculator from '@/components/KprCalculator';
+import ShareButtons from '@/components/ShareButtons';
 export const dynamic='force-dynamic';
 const get=oneProp;
-export async function generateMetadata({params}){const p=await get(params.id);return p?{title:tc(p.judul),openGraph:{title:tc(p.judul),description:`${rp(p.harga)} · ${p.lokasi}`,images:fotos(p).slice(0,1)}}:{}}
+export async function generateMetadata({params}){const p=await get(params.id); if(!p) return {};
+  const t=tc(p.judul),sp=specs(p.spesifikasi).slice(0,3).map(([k,v])=>`${k} ${v}`).join(' · '),
+    desc=[`${p.status==='Disewa'?'Disewakan':'Dijual'} ${rp(p.harga)}`,tc(p.lokasi),sp].filter(Boolean).join(' · '),
+    imgs=fotos(p).slice(0,3).map(url=>({url,alt:t})),url=`/properti/${p.id}`;
+  return {title:t,description:desc,alternates:{canonical:url},
+    openGraph:{type:'website',url,siteName:'Properti Y2K',locale:'id_ID',title:t,description:desc,images:imgs},
+    twitter:{card:'summary_large_image',title:t,description:desc,images:imgs.map(i=>i.url).slice(0,1)}}}
 export default async function Detail({params}){
   const p=await get(params.id); if(!p) notFound(); const s=await getSettings();
   const fas=String(p.fasilitas||'').split(',').map(x=>x.trim()).filter(Boolean);
@@ -19,4 +26,5 @@ export default async function Detail({params}){
       {!!fas.length&&<div className="flex flex-wrap gap-2">{fas.map(f=><span key={f} className="rounded-full border border-gold/40 px-3 py-1 text-xs text-gold">{f}</span>)}</div>}</div>
       <aside className="min-w-0 space-y-4 lg:sticky lg:top-6 lg:self-start"><KprCalculator harga={Number(p.harga)} cfg={s} judul={p.judul}/>
         <a className="btn block text-center" href={`https://wa.me/${s.wa}?text=${encodeURIComponent('Halo, saya tertarik dengan '+p.judul)}`}>Hubungi {s.agen}</a>
+        <ShareButtons judul={tc(p.judul)} harga={rp(p.harga)}/>
         {p.brighton_url&&<a className="btn2 block text-center" href={p.brighton_url} target="_blank" rel="noopener noreferrer">Lihat listing asli</a>}</aside></div></main>}

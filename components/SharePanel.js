@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { rp, specs, tc } from '@/lib/supabase';
 import { tipeOf } from '@/lib/data';
+import VideoMaker from '@/components/VideoMaker';
 
 // Ukuran & "safe zone" tiap platform (px). pad = jarak aman bawah/atas agar tidak tertutup tombol/UI aplikasi.
 const FORMATS=[
@@ -61,7 +62,7 @@ function caption(k,p,cfg,origin){
   return `🏡 ${p.status==='Disewa'?'DISEWAKAN':'DIJUAL'}\n${tc(p.judul)}\n\n📍 ${tc(p.lokasi)}\n💰 ${rp(p.harga)}\n${sp}\n\n📲 Hubungi ${cfg.agen} (Brighton)\nWA ${wa} — link di bio\n\n${tg.ig}`;
 }
 export default function SharePanel({p,cfg,onClose}){
-  const cv=useRef(null),[fi,setFi]=useState(0),[fk,setFk]=useState('ig'),[cap,setCap]=useState(''),[note,setNote]=useState(''),[busy,setBusy]=useState(false);
+  const cv=useRef(null),[fi,setFi]=useState(0),[fk,setFk]=useState('ig'),[cap,setCap]=useState(''),[note,setNote]=useState(''),[busy,setBusy]=useState(false),[mode,setMode]=useState('img');
   const f=FORMATS.find(x=>x.k===fk),fotos=(p.foto||[]).slice(0,8);
   useEffect(()=>{setCap(caption(fk,p,cfg,location.origin))},[fk,p]);
   useEffect(()=>{let dead=false;(async()=>{setBusy(true);setNote('');try{
@@ -75,6 +76,9 @@ export default function SharePanel({p,cfg,onClose}){
     else{await dl();setNote('Browser ini belum mendukung kirim langsung. Gambar diunduh & caption disalin — buka aplikasinya lalu unggah.')}};
   return <div className="space-y-4 rounded-2xl border border-line bg-card p-4 sm:p-5">
     <div className="flex items-start justify-between gap-3"><div className="min-w-0"><h2 className="font-serif text-2xl text-gold">Bagikan ke sosial media</h2><p className="truncate text-xs text-stone-400">{tc(p.judul)}</p></div><button className="btn2 shrink-0" onClick={onClose}>Tutup</button></div>
+    <div className="flex gap-2">{[['img','🖼️ Gambar'],['vid','🎬 Video']].map(([k,l])=><button key={k} onClick={()=>setMode(k)} className={mode===k?'btn':'btn2'}>{l}</button>)}</div>
+    {mode==='vid'&&<VideoMaker p={p} cfg={cfg} caption={caption('tt',p,cfg,location.origin)}/>}
+    <div className={mode==='img'?'space-y-4':'hidden'}>
     <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{FORMATS.map(x=><button key={x.k} onClick={()=>setFk(x.k)} className={`rounded-xl border p-2 text-left ${fk===x.k?'border-gold bg-gold/10 text-gold':'border-line text-stone-300'}`}><p className="text-sm font-medium">{x.label}</p><p className="text-[11px] text-stone-500">{x.sub}</p></button>)}</div>
     {fotos.length>1&&<div><p className="mb-1 text-xs text-stone-400">Pilih foto utama</p><div className="flex gap-2 overflow-x-auto pb-1">{fotos.map((u,i)=><button key={u} onClick={()=>setFi(i)} className={`shrink-0 rounded-lg border-2 ${i===fi?'border-gold':'border-transparent'}`}><img src={u} alt="" className="h-14 w-20 rounded object-cover"/></button>)}</div></div>}
     <div className="grid gap-4 md:grid-cols-[minmax(0,320px)_1fr]">
@@ -82,4 +86,4 @@ export default function SharePanel({p,cfg,onClose}){
       <div className="space-y-3"><label className="block text-xs text-stone-400">Caption ({f.label}) — boleh diedit<textarea rows="12" className="inp mt-1 font-mono text-xs" value={cap} onChange={e=>setCap(e.target.value)}/></label>
         <div className="flex flex-wrap gap-2"><button className="btn flex-1 sm:flex-none" onClick={share} disabled={busy}>Bagikan ke aplikasi</button><button className="btn2" onClick={dl} disabled={busy}>Unduh gambar</button><button className="btn2" onClick={copy}>Salin caption</button></div>
         <p className="text-xs text-stone-500">“Bagikan ke aplikasi” membuka menu HP — pilih Instagram, TikTok, Facebook, dll. Gambar & caption sudah menyesuaikan ukuran masing-masing platform.</p>
-        {note&&<p className="text-sm text-gold">{note}</p>}</div></div></div>}
+        {note&&<p className="text-sm text-gold">{note}</p>}</div></div></div></div>}
