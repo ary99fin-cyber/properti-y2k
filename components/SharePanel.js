@@ -16,6 +16,7 @@ async function loadImg(url){
     try{const r=await fetch(u); if(r.ok) return await createImageBitmap(await r.blob())}catch{}
   } throw new Error('Foto tidak bisa dimuat. Coba pilih foto lain.');
 }
+async function getBlob(url){for(const u of [url,'/api/img?u='+encodeURIComponent(url)]){try{const r=await fetch(u);if(r.ok)return await r.blob()}catch{}}return null}
 function wrap(c,text,maxW,maxLines){const words=String(text).split(/\s+/),lines=[];let cur='';
   for(const w of words){const t=cur?cur+' '+w:w;if(c.measureText(t).width>maxW&&cur){lines.push(cur);cur=w}else cur=t}
   if(cur)lines.push(cur);
@@ -62,9 +63,10 @@ function caption(k,p,cfg,origin){
   return `🏡 ${p.status==='Disewa'?'DISEWAKAN':'DIJUAL'}\n${tc(p.judul)}\n\n📍 ${tc(p.lokasi)}\n💰 ${rp(p.harga)}\n${sp}\n\n📲 Hubungi ${cfg.agen} (Brighton)\nWA ${wa} — link di bio\n\n${tg.ig}`;
 }
 export default function SharePanel({p,cfg,onClose,startMode}){
-  const cv=useRef(null),[fi,setFi]=useState(0),[fk,setFk]=useState('ig'),[cap,setCap]=useState(''),[note,setNote]=useState(''),[busy,setBusy]=useState(false),[mode,setMode]=useState(startMode||'img');
+  const cv=useRef(null),[fi,setFi]=useState(0),[fk,setFk]=useState('ig'),[cap,setCap]=useState(''),[note,setNote]=useState(''),[busy,setBusy]=useState(false),[mode,setMode]=useState(startMode||'img'),[bulk,setBulk]=useState(false),[withPoster,setWithPoster]=useState(true),pre=useRef(null);
   const f=FORMATS.find(x=>x.k===fk),fotos=(p.foto||[]).slice(0,8);
   useEffect(()=>{setCap(caption(fk,p,cfg,location.origin))},[fk,p]);
+  useEffect(()=>{pre.current=Promise.all(fotos.map(getBlob))},[p]);
   useEffect(()=>{let dead=false;(async()=>{setBusy(true);setNote('');try{
       const img=await loadImg(fotos[fi]);let ag=null;try{ag=await loadImg('/yenny-khuang.jpg')}catch{}
       if(!dead) await render(cv.current,f,p,img,ag,cfg)}catch(e){if(!dead)setNote(e.message)}if(!dead)setBusy(false)})();return()=>{dead=true}},[fk,fi,p,cfg.accent]);
@@ -74,6 +76,16 @@ export default function SharePanel({p,cfg,onClose,startMode}){
   const share=async()=>{const file=new File([await blob()],`${slug(p.judul)}-${fk}.jpg`,{type:'image/jpeg'});try{await navigator.clipboard.writeText(cap)}catch{}
     if(navigator.canShare?.({files:[file]})){try{await navigator.share({files:[file],text:cap,title:tc(p.judul)});setNote('Caption sudah disalin — tempel (paste) jika aplikasi tidak mengisinya otomatis.')}catch(e){if(e.name!=='AbortError')setNote(e.message)}}
     else{await dl();setNote('Browser ini belum mendukung kirim langsung. Gambar diunduh & caption disalin — buka aplikasinya lalu unggah.')}};
+  const shareAll=async()=>{if(bulk)return;setBulk(true);setNote('Menyiapkan semua foto…');
+    try{try{await navigator.clipboard.writeText(cap)}catch{}
+      const files=[],base=slug(p.judul);
+      if(withPoster)files.push(new File([await blob()],`${base}-${fk}.jpg`,{type:'image/jpeg'}));
+      const bl=await (pre.current||Promise.all(fotos.map(getBlob)));let n=0;
+      for(const b of bl){if(b){n++;const t=b.type||'image/jpeg';files.push(new File([b],`${base}-foto-${n}.${t.split('/')[1].replace('jpeg','jpg')}`,{type:t}))}}
+      if(!files.length)throw new Error('Tidak ada foto yang bisa dimuat.');
+      if(navigator.canShare?.({files})){await navigator.share({files,text:cap,title:tc(p.judul)});setNote(`${files.length} foto dibagikan. Caption sudah disalin — tempel (paste) jika aplikasi tidak mengisinya otomatis.`)}
+      else{for(const f2 of files){const a=document.createElement('a');a.href=URL.createObjectURL(f2);a.download=f2.name;document.body.appendChild(a);a.click();a.remove();await new Promise(r=>setTimeout(r,500))}setNote('Browser ini belum bisa mengirim banyak foto langsung. Semua foto diunduh dan caption disalin — unggah dari galeri.')}
+    }catch(e){if(e.name!=='AbortError')setNote(e.message)}setBulk(false)};
   return <div className="space-y-4 rounded-2xl border border-line bg-card p-4 sm:p-5">
     <div className="flex items-start justify-between gap-3"><div className="min-w-0"><h2 className="font-serif text-2xl text-gold">Bagikan ke sosial media</h2><p className="truncate text-xs text-stone-400">{tc(p.judul)}</p></div><button className="btn2 shrink-0" onClick={onClose}>Tutup</button></div>
     <div className="flex gap-2">{[['img','🖼️ Gambar'],['vid','🎬 Video']].map(([k,l])=><button key={k} onClick={()=>setMode(k)} className={mode===k?'btn':'btn2'}>{l}</button>)}</div>
@@ -85,5 +97,6 @@ export default function SharePanel({p,cfg,onClose,startMode}){
       <div className="relative mx-auto w-full max-w-xs"><canvas ref={cv} className="w-full rounded-lg border border-line bg-black" style={{aspectRatio:`${f.w}/${f.h}`}}/>{busy&&<p className="absolute inset-0 grid place-items-center text-sm text-stone-300">Membuat gambar…</p>}</div>
       <div className="space-y-3"><label className="block text-xs text-stone-400">Caption ({f.label}) — boleh diedit<textarea rows="12" className="inp mt-1 font-mono text-xs" value={cap} onChange={e=>setCap(e.target.value)}/></label>
         <div className="flex flex-wrap gap-2"><button className="btn flex-1 sm:flex-none" onClick={share} disabled={busy}>Bagikan ke aplikasi</button><button className="btn2" onClick={dl} disabled={busy}>Unduh gambar</button><button className="btn2" onClick={copy}>Salin caption</button></div>
-        <p className="text-xs text-stone-500">“Bagikan ke aplikasi” membuka menu HP — pilih Instagram, TikTok, Facebook, dll. Gambar & caption sudah menyesuaikan ukuran masing-masing platform.</p>
+        {fotos.length>1&&<div className="space-y-2 rounded-xl border border-line p-3"><button className="btn w-full sm:w-auto" onClick={shareAll} disabled={busy||bulk}>{bulk?'Menyiapkan…':`Bagikan semua foto (${fotos.length}${withPoster?' + poster':''})`}</button><label className="flex items-center gap-2 text-xs text-stone-400"><input type="checkbox" checked={withPoster} onChange={e=>setWithPoster(e.target.checked)}/>Sertakan poster berisi harga sebagai foto pertama</label></div>}
+        <p className="text-xs text-stone-500">“Bagikan ke aplikasi” membuka menu HP — pilih Instagram, TikTok, Facebook, dll. Tombol ini mengirim satu poster. Untuk semua foto properti sekaligus, pakai “Bagikan semua foto”.</p>
         {note&&<p className="text-sm text-gold">{note}</p>}</div></div></div></div>}
